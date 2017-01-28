@@ -7,7 +7,7 @@
 	"author" : "nicolasrn@hotmail.com",
 	"repository" : {
 		"type": "git",
-		"url": "git://github.com/nicolasrn@hotmail.com/liste-de-naissance.git"
+		"url": "git://github.com/nicolasrn/liste-de-naissance.git"
 	},
 	"dependencies" : {
 		"bootstrap" : "3.3.7",
