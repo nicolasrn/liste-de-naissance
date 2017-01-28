@@ -1,0 +1,13 @@
+{
+	"name" : "liste de naissance",
+	"version" : "1.0.0",
+	"description" : "",
+	"author" : "nicolasrn@hotmail.com",
+	"dependancies" : {
+		"bootstrap" : "3.3.7",
+		"vue" : "2.1.10",
+		"vue-resource" : "1.0.3",
+		"vue-router" : "2.2.0"
+	}
+
+}

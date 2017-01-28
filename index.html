@@ -1,0 +1,32 @@
+<!-- index.html -->
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>liste de naissance pour bébé</title>
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="/pourbebepingereitz/node_modules/bootstrap/dist/css/bootstrap.min.css">
+	</head>
+	<body>
+		<!-- main body of our application -->
+		<div id="app" class="container">
+			<router-link to="/">home</router-link>
+    		<router-link to="/liste-de-naissance">liste de naissance</router-link>
+    		
+    		<router-view></router-view>
+		</div>
+
+		<!--
+			<login v-if="isLogin == false"></login>
+			<cadeaux v-if="isLogin == true"></cadeaux>
+		-->
+
+		<!-- JS -->
+		<script src="/pourbebepingereitz/node_modules/vue/dist/vue.js"></script>
+		<script src="/pourbebepingereitz/node_modules/vue-resource/dist/vue-resource.js"></script>
+		<script src="/pourbebepingereitz/node_modules/vue-router/dist/vue-router.js"></script>
+		
+		<script src="/pourbebepingereitz/app.js"></script>
+	</body>
+</html>
