@@ -1,9 +1,15 @@
 {
-	"name" : "liste de naissance",
+	"name" : "liste-de-naissance",
+	"readme": "ras",
 	"version" : "1.0.0",
-	"description" : "",
+	"description" : "ras",
+	"license": "MIT",
 	"author" : "nicolasrn@hotmail.com",
-	"dependancies" : {
+	"repository" : {
+		"type": "git",
+		"url": "git://github.com/nicolasrn@hotmail.com/liste-de-naissance.git"
+	},
+	"dependencies" : {
 		"bootstrap" : "3.3.7",
 		"vue" : "2.1.10",
 		"vue-resource" : "1.0.3",
