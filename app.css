@@ -1,0 +1,12 @@
+body {
+	padding-top: 56px;
+}
+
+.nomargin {
+	margin: 0;	
+} 
+
+.navbar-inverse h1.navbar-brand:focus, 
+.navbar-inverse h1.navbar-brand:hover {
+	color: #9d9d9d;
+}
