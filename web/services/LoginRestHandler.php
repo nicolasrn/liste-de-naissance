@@ -36,8 +36,8 @@ class LoginRestHandler extends SimpleRest {
 
 		if ($req->rowCount() == 1) {
 			return array(
+				'id' => $req->fetch()['id'],
 				'login' => $login,
-				'password' => $password
 			);	
 		}
 		return null;

@@ -8,7 +8,7 @@
 		},
 		data: function() {
 			return {
-				idLoggedIn: false,
+				isLoggedIn: false,
 				login: null, 
 				mdp: null
 			};
@@ -29,7 +29,6 @@
 					},
 					success : function(data) {
 						if (data && data != "null") {
-							$.data(document, "user", data);
 							this.callback(data);
 							router.push('/liste-de-naissance');
 						} else {
@@ -38,13 +37,13 @@
 					}
 				});
 			}, callback: function(data) {
-				this.idLoggedIn = true
-				this.login = JSON.parse(data)['login'];
+				$.data(document, "user", data);
+				this.isLoggedIn = true;
 			}
 		},
 		template: `
 			<div id="form-authentification">
-				<form v-if="!idLoggedIn" class="navbar-form navbar-right" v-on:submit.prevent="authentification(this)">
+				<form v-if="!isLoggedIn" class="navbar-form navbar-right" v-on:submit.prevent="authentification(this)">
 					<div class="form-group">
 						<input type="text" placeholder="login" id="login" name="login" class="form-control" v-model="login">
 					</div>
@@ -100,12 +99,21 @@
 			item: {
 				required: true
 			},
-			index: {
-				required: true
+			nbColonne: {
+				required: false
+			}
+		},
+		computed: {
+			tailleColonne: function() {
+				var nbColonneMax = 12;
+				return nbColonneMax / this.nbColonne;
+			},
+			classeCss: function() {
+				return "col-md-" + this.tailleColonne;
 			}
 		},
 		template: `
-			<div class="col-md-4">
+			<div :class="classeCss">
 				<div class="thumbnail">
 					<img :src="item.img"/>
 					<div class="caption">
@@ -129,6 +137,19 @@
 			return {
 				cadeaux: []
 			};
+		},
+		props: {
+			nbColonneMax: {
+				required: false
+			}
+		},
+		computed: {
+			nbMaxColonne: function () {
+				if (this.nbColonneMax === undefined) {
+					return 3;
+				}
+				return this.nbColonneMax;
+			}
 		},
 		mounted: function() {
 			this.cadeaux = [
@@ -170,15 +191,24 @@
 				}
 			]
 		},
+		mounted: function() {
+			$.ajax({
+				url: "api/cadeaux", 
+				method: 'GET',
+				success : function(data) {
+					this.cadeaux = data;
+				}
+			});
+		},
 		methods: {
 			getIndex: function(ligne, colonne) {
-				return (ligne - 1) * 3 + colonne - 1;
+				return (ligne - 1) * this.nbMaxColonne + colonne - 1;
 			}
 		},
 		template: `
 				<div class="container-fluid">
-					<div class="row" v-for="ligne in Math.ceil(cadeaux.length / 3)">
-						<display-item :item="cadeaux[getIndex(ligne, colonne)]" :index="colonne" v-for="colonne in 3" v-if="cadeaux[getIndex(ligne, colonne)]"></display-item>
+					<div class="row" v-for="ligne in Math.ceil(cadeaux.length / nbMaxColonne)">
+						<display-item :item="cadeaux[getIndex(ligne, colonne)]" v-for="colonne in nbMaxColonne" :nbColonne="nbMaxColonne" v-if="cadeaux[getIndex(ligne, colonne)]"></display-item>
 					</div>
 				</div>
 		`
@@ -192,6 +222,7 @@
 		},
 		mounted: function() {
 			var data = $.data(document, "user");
+			console.log(loginAppSimple);
 			if (!data) {
 				router.push('/');
 			}
