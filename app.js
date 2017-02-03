@@ -38,6 +38,7 @@
 				});
 			}, callback: function(data) {
 				$.data(document, "user", data);
+				this.$set(appPrincipale, "user", data);
 				this.isLoggedIn = true;
 			}
 		},
@@ -152,6 +153,7 @@
 			}
 		},
 		mounted: function() {
+			//*
 			this.cadeaux = [
 				{
 					libelle: 'biberon 1',
@@ -189,16 +191,21 @@
 					quantiteReserve: 1,
 					img: 'http://lorempixel.com/500/300/'
 				}
-			]
-		},
-		mounted: function() {
+			];
+			//*/
+			/*
+			var datas = null;
 			$.ajax({
-				url: "api/cadeaux", 
+				url: "api/articles", 
 				method: 'GET',
+				async: false, 
+				callback: this.callback,
 				success : function(data) {
-					this.cadeaux = data;
+					datas = data;
 				}
 			});
+			this.cadeaux = JSON.parse(datas);
+			//*/
 		},
 		methods: {
 			getIndex: function(ligne, colonne) {
@@ -222,7 +229,6 @@
 		},
 		mounted: function() {
 			var data = $.data(document, "user");
-			console.log(loginAppSimple);
 			if (!data) {
 				router.push('/');
 			}
@@ -270,6 +276,20 @@
 	var appPrincipale = new Vue({
 		el: '#app',
 		data: {
+			user: null
+		},
+		mounted: function() {
+			var self = this;
+			$.ajax({
+				url: "api/articles", 
+				method: 'GET',
+				callback: this.callback,
+				success : function(data) {
+					self.cadeaux = JSON.parse(data);
+					//done();
+					//self.$set('cadeaux', JSON.parse(data));
+				}
+			});
 		},
 		components: {
 			'bienvenueapp': BienvenueApp,
