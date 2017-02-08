@@ -1,44 +1,103 @@
 <?php
-require_once("SimpleRest.php");
-		
-class ArticlesRestHandler extends SimpleRest {
-//var_dump()
+	require_once("SimpleRest.php");
+			
+	class ArticlesRestHandler extends SimpleRest {
+		private $reqArticles;
+		private $reqArticleParUtilisateur;
+		private $reqImage;
+		private $reqUpdate;
+		private $reqSelectForUpdate;
+		private $reqInsert;
 
-	public function handleGet($get) {
-		//var_dump($get);
+		public function __construct() {
+			parent::__construct();
 
-		$reponse = $this->getAll();
+			$this->reqArticles = $this->bdd->prepare('select id, libelle, COALESCE(quantiteSouhaitee, 0) as quantiteSouhaitee, COALESCE(sum(quantiteReservee), 0) as quantiteReserveeTotale from tarticle a left join PersonneReserveCadeau prc on prc.idArticle = a.id group by a.id, a.libelle, a.quantiteSouhaitee');
+			$this->reqArticleParUtilisateur = $this->bdd->prepare('select prc.quantiteReservee from TPersonne p join PersonneReserveCadeau prc on p.id = prc.idPersonne and prc.idArticle = :idArticle where p.id = :idPersonne');
+			$this->reqImage = $this->bdd->prepare('select src from timage where idArticle = :idArticle');
 
-		return json_encode($reponse, JSON_FORCE_OBJECT);
-	}
-
-	private function getAll() {
-		try {
-			$bdd = new PDO('mysql:host=localhost;dbname=liste-de-naissance;charset=utf8', 'client', 'client');
-		} catch(Exception $e) {
-			die('Erreur : '.$e->getMessage());
+			$this->reqSelectForUpdate = $this->bdd->prepare('select * from personnereservecadeau where idArticle = :idArticle and idPersonne = :idPersonne');
+			$this->reqUpdate = $this->bdd->prepare('update personnereservecadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
+			$this->reqInsert = $this->bdd->prepare('insert into personnereservecadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
 		}
 
-		$req = $bdd->prepare('select * from tarticle');
-		$req->execute();
+		public function handleGet($get) {
+			//var_dump($get);
+			$reponse = $this->getAll($get);
 
-		$resultats = [];
-		$index = 0;
-		while($donnees = $req->fetch()) {
-			$resultats[$index++] = array (
-				'id' => $donnees['id'],
-				'libelle' => $donnees['libelle'],
-				'quantiteSouhaite' => $donnees['quantiteSouhaitee'],
-				'quantiteReserve' => $donnees['quantiteReservee'],
-				'img' => $donnees['url']
-			);
+			$this->setHttpHeaders('application/json', 200);
+			return json_encode($reponse, JSON_FORCE_OBJECT);
 		}
-		return $resultats;
-	}
 
-	public function handlePost($post) {
-		var_dump($post);
-	}
+		private function getAll($get) {
+			$this->reqArticles->execute();
 
-}
+			$resultats = array();
+			$index = 0;
+			while($donnees = $this->reqArticles->fetch()) {
+				$resultats[$index++] = array (
+					'id' => $donnees['id'],
+					'libelle' => $donnees['libelle'],
+					'quantiteSouhaitee' => $donnees['quantiteSouhaitee'],
+					'quantiteReserveeTotal' => $donnees['quantiteReserveeTotale'],
+					'quantiteReserveeUtilisateur' => $this->getQuantiteReserveeUtilisateur($donnees['id'], $get['idUser']),
+					'img' => $this->getImages($donnees['id'])
+				);
+			}
+			return $resultats;
+		}
+
+		public function getImages($id) {
+			$this->reqImage->execute(array(
+				'idArticle' => $id
+			));
+			$images = array();
+			while($donnees = $this->reqImage->fetch()) {
+				$images[] = $donnees['src'];
+			}
+			return $images;
+		}
+
+		public function getQuantiteReserveeUtilisateur($idArticle, $idUser) {
+			$this->reqArticleParUtilisateur->execute(array(
+				'idArticle' => $idArticle,
+				'idPersonne' => $idUser
+			));
+			$qte = 0;
+			while($donnees = $this->reqArticleParUtilisateur->fetch()) {
+				$qte = $donnees['quantiteReservee'];
+			}
+			return $qte;
+		}
+
+		private function isUtilisateurADejaReserve($idUser, $idArticle) {
+			$this->reqSelectForUpdate->execute(array(
+				'idPersonne' => $idUser,
+				'idArticle' => $idArticle,
+			));
+			return $this->reqSelectForUpdate->rowCount() == 1;
+		}
+
+		public function handlePost($post) {
+			$idUser = $post['idUser'];
+			$idArticle = $post['idArticle'];
+			$newValue = $post['newValue'];
+
+			if ($this->isUtilisateurADejaReserve($idUser, $idArticle)) {
+				$res = $this->reqUpdate->execute(array(
+					'idArticle' => $idArticle,
+					'idPersonne' => $idUser,
+					'valeur' => $newValue
+				));	
+			} else {
+				$res = $this->reqInsert->execute(array(
+					'idArticle' => $idArticle,
+					'idPersonne' => $idUser,
+					'valeur' => $newValue
+				));
+			}
+			$this->setHttpHeaders('application/json', $res ? 200 : 500);
+		}
+
+	}
 ?>

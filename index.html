@@ -9,45 +9,169 @@
 		<title>liste de naissance pour bébé</title>
 
 		<!-- CSS -->
-		<link rel="stylesheet" href="/pourbebepingereitz/node_modules/bootstrap/dist/css/bootstrap.min.css">
-		<link rel="stylesheet" href="/pourbebepingereitz/app.css">
+		<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/app.css">
 	</head>
 	<body>
-		<div id="app" class="page">
-			<nav class="navbar navbar-inverse navbar-fixed-top">
-				<div class="container">
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-						<a class="navbar-brand" href="#">liste de naissance pour bébé</a>
-					</div>
-					<div id="navbar" class="navbar-collapse collapse">
-						<!--<div id="simpleLoginApp"></div>-->
-						<login-simple></login-simple>
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">liste de naissance pour bébé</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<script id="login-template" type="text/x-handlebars-template">
+						{{#if login}}
+							<h1 class="navbar-right navbar-brand nomargin">Bonjour, {{login}}</h1>
+						{{else}}
+							<form method="POST" id="form-authentification" class="navbar-form navbar-right">
+								<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+									<input type="text" placeholder="login" id="login" name="login" class="form-control">
+								</div>
+								<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+									<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control">
+								</div>
+								<button type="submit" class="btn btn-success">Se connecter</button>
+								<a class="btn btn-default" href="#/enregistrement" role="button">S'enregistrer</a>
+							</form>
+						{{/if}}
+					</script>
+				</div>
+			</div>
+		</nav>
+		
+		<!-- main body of our application -->
+		<div id="app">
+			<script id="app-template" type="text/x-handlebars-template">
+				<div class="jumbotron">
+					<div class="container">
+						<h1>Pour bébé</h1>
+						<p>
+							Voici quelques cadeaux que nous souhaiterions pour le bébé, si vous avez d'autres idées, vous pouvez les rajouter ;)
+						</p>
 					</div>
 				</div>
-			</nav>
-			
-			<!-- main body of our application -->
-			<div id="appRouter">
-				<!--<router-link to="/">home</router-link>
-	    		<router-link to="/liste-de-naissance">liste de naissance</router-link>!-->
-				<router-view></router-view>
-			</div>
+
+				<div class="container-fluid">
+					{{#each cadeaux}}
+					{{#ifmod @index @root.nbColonneAffichees 0 0}}
+					<div class="row">
+					{{/ifmod}}
+						<div class="col-md-{{math @root.nbColonneMax '/' @root.nbColonneAffichees}}">
+							<div class="thumbnail">
+								<div id="carousel-{{this.id}}" class="carousel slide" data-ride="carousel" data-interval="false">
+									<!-- Indicators -->
+									<ol class="carousel-indicators">
+										{{#eachWithParent img this.id}}
+											<li data-target="#carousel-{{@parentId}}" data-slide-to="{{@index}}" class="{{#eq @index 0}}active{{/eq}}"></li>
+										{{/eachWithParent}}
+									</ol>
+
+									<!-- Wrapper for slides -->
+									<div class="carousel-inner">
+										{{#each this.img}}
+										<div class="item {{#eq @index 0}}active{{/eq}}">
+											<img src="{{this}}" class="img-responsive center-block">
+											<div class="carousel-caption">
+											</div>
+										</div>
+										{{/each}}	
+									</div>
+
+									<!-- Controls -->
+									<a class="left carousel-control" href="#carousel-{{this.id}}" role="button" data-slide="prev">
+										<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+										<span class="sr-only">Previous</span>
+									</a>
+									<a class="right carousel-control" href="#carousel-{{this.id}}" role="button" data-slide="next">
+										<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+										<span class="sr-only">Next</span>
+									</a>
+								</div>
+
+								<!--<img src="{{this.img}}"/>-->
+								<div class="caption">
+									<h2>{{this.libelle}}</h2>
+									<div class="compteur" id="compteur-{{this.id}}">
+										<div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
+										<div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotal}}</span> réserve(s)</div>
+										<div class="input-group col-md-2">
+											<input type="text" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
+											<div class="input-group-btn">
+												<button type="button" class="btn btn-default moins">-</button>
+												<button type="button" class="btn btn-default plus">+</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{{#ifmod @index @root.nbColonneAffichees @root.nbColonneAffichees -1}}
+					</div>
+					{{/ifmod}}
+					{{else}}
+						<p>pas de cadeaux</p>
+					{{/each}}
+				</div>
+			</script>
+
+			<script id="bienvenue-template" type="text/x-handlebars-template">
+				<div class="jumbotron">
+					<div class="container">
+						<h1>Bonjour</h1>
+						<p>
+							Pour accéder à la liste de naissance, merci de vous authentifier
+						</p>
+					</div>
+				</div>
+			</script>
+
+			<script id="enregistrement-template" type="text/x-handlebars-template">
+				<div class="jumbotron">
+					<div class="container">
+						<form class="form-horizontal" id="enregistrement">
+							<div class="form-group">
+								<label for="login" class="col-sm-4 control-label">Login</label>
+								<div class="col-sm-8">
+									<input type="text" name="login" class="form-control" id="login" placeholder="Login">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="password" class="col-sm-4 control-label">mot de passe</label>
+								<div class="col-sm-8">
+									<input type="password" name="password" class="form-control" id="password" placeholder="mot de passe">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="password2" class="col-sm-4 control-label">confirmer le mot de passe</label>
+								<div class="col-sm-8">
+									<input type="password" name="password2" class="form-control" id="password2" placeholder="confirmer le mot de passe">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="col-sm-offset-4 col-sm-8">
+									<button type="submit" class="btn btn-default">S'enregistrer</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</script>
 		</div>
 
 		<!-- JS -->
-		<script src="/pourbebepingereitz/node_modules/jquery/dist/jquery.js"></script>
-		<script src="/pourbebepingereitz/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-
-		<script src="/pourbebepingereitz/node_modules/vue/dist/vue.js"></script>
-		<script src="/pourbebepingereitz/node_modules/vue-resource/dist/vue-resource.js"></script>
-		<script src="/pourbebepingereitz/node_modules/vue-router/dist/vue-router.js"></script>
+		<script src="/node_modules/jquery/dist/jquery.js"></script>
+		<script src="/node_modules/bootstrap/dist/js/bootstrap.js"></script>
+		<script src="/node_modules/handlebars/dist/handlebars.js"></script>
+		<script src="/node_modules/director/build/director.js"></script>
 		
-		<script src="/pourbebepingereitz/app.js"></script>
+		<script src="/plugin.js"></script>
+		<script src="/app.js"></script>
 	</body>
 </html>

@@ -1,310 +1,254 @@
-;(function(jQuery) {
+;(function($) {
 	"use-strict";
 
-	var loginAppSimple = Vue.extend({
-		name: 'loginAppSimple',
-		components: {
-			'liste-cadeaux': listeCadeauxApp
-		},
-		data: function() {
-			return {
-				isLoggedIn: false,
-				login: null, 
-				mdp: null
-			};
-		},
-		methods: {
-			authentification: function(form, event) {
-				if (event) {
-					event.preventDefault();
-				}
+	Handlebars.registerHelper('eq', function (a, b, options) {
+		return a === b ? options.fn(this) : options.inverse(this);
+	});
 
+	Handlebars.registerHelper('ifReservationPossible', function(a, b, options) {
+		if(a - b > 0) {
+			return options.fn(this);
+		}
+		return options.inverse(this);
+	});
+
+	Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+		var lvalue = parseFloat(lvalue);
+		var rvalue = parseFloat(rvalue);
+
+		return {
+			"+": lvalue + rvalue,
+			"-": lvalue - rvalue,
+			"*": lvalue * rvalue,
+			"/": lvalue / rvalue,
+			"%": lvalue % rvalue
+		}[operator];
+	});
+
+	Handlebars.registerHelper("ifmod", function(index, modulo, resultat, delta, options) {
+		var index = parseFloat(index);
+		var modulo = parseFloat(modulo);
+		var resultat = parseFloat(resultat) + parseFloat(delta);
+
+		var calcul = index % modulo;
+
+		var resultatComparaison = calcul == resultat;
+
+		return resultatComparaison ? options.fn(this) : options.inverse(this);
+	});
+
+	Handlebars.registerHelper('eachWithParent', function(context, parentId, options) {
+		if (!options) {
+			throw new Exception('Must pass iterator to #eachWithParent');
+		}
+
+		var fn = options.fn, inverse = options.inverse;
+		var i = 0, ret = "", data;
+
+		if (options.data) {
+			data = Handlebars.createFrame(options.data);
+		}
+
+		if(context && typeof context === 'object') {
+			if (Handlebars.Utils.isArray(context)) {
+				for(var j = context.length; i<j; i++) {
+					if (data) {
+						data.index = i;
+						data.first = (i === 0);
+						data.last  = (i === (context.length-1));
+						data.parentId = parentId;
+					}
+					ret = ret + fn(context[i], { data: data });
+				}
+			}
+		}
+
+		if(i === 0){
+			ret = inverse(this);
+		}
+
+		return ret;
+	});
+
+	var util = {
+		uuid: function () {
+			/*jshint bitwise:false */
+			var i, random;
+			var uuid = '';
+
+			for (i = 0; i < 32; i++) {
+				random = Math.random() * 16 | 0;
+				if (i === 8 || i === 12 || i === 16 || i === 20) {
+					uuid += '-';
+				}
+				uuid += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random)).toString(16);
+			}
+
+			return uuid;
+		}
+	};
+
+	var App = {
+		init: function () {
+			this.formLoginTemplate = Handlebars.compile($('#login-template').html());
+			this.bienvenueTemplate = Handlebars.compile($('#bienvenue-template').html());
+			this.listeNaissanceTemplate = Handlebars.compile($('#app-template').html());
+			this.enregistrementTemplate = Handlebars.compile($('#enregistrement-template').html());
+			this.bindEvents();
+
+			var self = this;
+
+			this.router = new Router({
+				'/': function (filter) {
+					self.renderHome();
+				}.bind(this),
+				'/liste-de-naissance': function (filter) {
+					self.renderListeDeNaissance();
+				}.bind(this),
+				'/enregistrement': function(filter) {
+					self.renderEnregistrement();
+				}.bind(this)
+			});
+		},
+		isLogged: function(callbackSuccess, callbackError) {
+			$.ajax({
+				url: "/web/services/RestController.php?model=login&action=isAuthentificate", 
+				method: 'GET',
+				success : function(data) {
+					return callbackSuccess(data);
+				}, 
+				error: function() {
+					return callbackError();
+				}
+			});
+		},
+		authentificate: function(event) {
+			event.preventDefault();
+			self = this;
+			$.ajax({
+				url: "/web/services/RestController.php?model=login", 
+				method: 'POST',
+				data : {
+					'login': event.target.login.value,
+					'password': event.target.password.value
+				},
+				success : function(data) {
+					self.user = data;
+					if (data && data != "null") {
+						self.router.setRoute('/liste-de-naissance');
+					}
+				},
+				error: function(jqXHR, textStatus, errorThrown ) {
+					self.renderLogin({
+						erreurAuthentification: true
+					});
+					$('[data-toggle="login-erreur"]').popover();
+					self.renderBienvenue();
+				}
+			});
+		},
+		getListe: function(idUser, callbackSuccess, callbackError) {
+			$.ajax({
+				url: "/web/services/RestController.php", 
+				data: {
+					model: 'articles',
+					idUser: idUser
+				},
+				method: 'GET',
+				success : function(data) {
+					return callbackSuccess(data);
+				}, 
+				error: function(jqXHR, textStatus, errorThrown) {
+					return callbackError(jqXHR, textStatus, errorThrown);
+				}
+			});
+		},
+		enregistrement: function(event) {
+			event.preventDefault();
+			var self = this;
+			var form = event.target;
+			var login = form.login.value;
+			var password = form.password.value;
+			var confirmationPassword = form.password2.value;
+			
+			if (password !== confirmationPassword) {
+				$(form.password).parents('div.form-group').addClass('has-error');
+				$(form.password2).parents('div.form-group').addClass('has-error');
+			} else {
 				$.ajax({
-					url: "api/authentification", 
-					method: 'GET',
-					callback: this.callback,
+					url: "/web/services/RestController.php?model=login&action=enregistrement", 
+					method: 'POST',
 					data : {
-						'login': this.login,
-						'password': this.mdp
+						'login': login,
+						'password': password
 					},
 					success : function(data) {
-						if (data && data != "null") {
-							this.callback(data);
-							router.push('/liste-de-naissance');
-						} else {
-							console.log("login ou mot de passe incorrecte");
-						}
+						self.router.setRoute('/');
+					},
+					error: function(jqXHR, textStatus, errorThrown ) {
+						console.log(jqXHR, textStatus, errorThrown);
 					}
 				});
-			}, callback: function(data) {
-				$.data(document, "user", data);
-				this.$set(appPrincipale, "user", data);
-				this.isLoggedIn = true;
 			}
 		},
-		template: `
-			<div id="form-authentification">
-				<form v-if="!isLoggedIn" class="navbar-form navbar-right" v-on:submit.prevent="authentification(this)">
-					<div class="form-group">
-						<input type="text" placeholder="login" id="login" name="login" class="form-control" v-model="login">
-					</div>
-					<div class="form-group">
-						<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control" v-model="mdp">
-					</div>
-					<button type="submit" class="btn btn-success">Se connecter</button>
-				</form>
-				<h1 v-else class="navbar-right navbar-brand nomargin">Bonjour, {{login}}</h1>
-			</div>
-		`
-	});
-
-	var counterApp = Vue.extend({
-		name: 'counterApp',
-		data: function() {
-			return {
-				valeur: 0
-			};
+		bindEvents: function () {
+			$('#navbar').on('submit', 'form#form-authentification', this.authentificate.bind(this));
+			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
 		},
-		props: {
-			max: {
-				required:true
-			}
-		},
-		methods: {
-			increment: function() {
-				if (this.valeur < this.max) {
-					this.valeur++;
-				}
-			},
-			decrement: function() {
-				if (this.valeur > 0) {
-					this.valeur--;
-				}
-			}
-		},
-		template:`
-			<div>
-				<span>{{valeur}}</span>
-				<button v-on:click="decrement">-</button> 
-				<button v-on:click="increment">+</button>
-			</div>
-		`
-	});
-
-	var displayItemApp = Vue.extend({
-		name: 'displayItemApp',
-		components: {
-			'counter': counterApp
-		},
-		props: {
-			item: {
-				required: true
-			},
-			nbColonne: {
-				required: false
-			}
-		},
-		computed: {
-			tailleColonne: function() {
-				var nbColonneMax = 12;
-				return nbColonneMax / this.nbColonne;
-			},
-			classeCss: function() {
-				return "col-md-" + this.tailleColonne;
-			}
-		},
-		template: `
-			<div :class="classeCss">
-				<div class="thumbnail">
-					<img :src="item.img"/>
-					<div class="caption">
-						<h2>{{item.libelle}}</h2>
-						<div><span>{{item.quantiteSouhaite}}</span> ça serait bien</div>
-						<div>déjà <span>{{item.quantiteReserve}}</span> réserve(s)</div>
-						<div v-if="item.quantiteSouhaite == item.quantiteReserve">le nécessaire est réservé</div>
-						<counter v-else :max="item.quantiteSouhaite - item.quantiteReserve"></counter>
-					</div>
-				</div>
-			</div>
-		`
-	});
-
-	var grilleCadeauApp = Vue.extend ({
-		name: 'grilleCadeauApp',
-		components: {
-			'display-item': displayItemApp
-		},
-		data: function() {
-			return {
-				cadeaux: []
-			};
-		},
-		props: {
-			nbColonneMax: {
-				required: false
-			}
-		},
-		computed: {
-			nbMaxColonne: function () {
-				if (this.nbColonneMax === undefined) {
-					return 3;
-				}
-				return this.nbColonneMax;
-			}
-		},
-		mounted: function() {
-			//*
-			this.cadeaux = [
-				{
-					libelle: 'biberon 1',
-					quantiteSouhaite: 2,
-					quantiteReserve: 2,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'bavoir 2',
-					quantiteSouhaite: 6,
-					quantiteReserve: 2,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'sucette 3',
-					quantiteSouhaite: 1,
-					quantiteReserve: 1,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'bavoir 4',
-					quantiteSouhaite: 6,
-					quantiteReserve: 2,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'sucette 5',
-					quantiteSouhaite: 1,
-					quantiteReserve: 1,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'bavoir 6',
-					quantiteSouhaite: 6,
-					quantiteReserve: 2,
-					img: 'http://lorempixel.com/500/300/'
-				}, {
-					libelle: 'sucette 7',
-					quantiteSouhaite: 1,
-					quantiteReserve: 1,
-					img: 'http://lorempixel.com/500/300/'
-				}
-			];
-			//*/
-			/*
-			var datas = null;
-			$.ajax({
-				url: "api/articles", 
-				method: 'GET',
-				async: false, 
-				callback: this.callback,
-				success : function(data) {
-					datas = data;
-				}
-			});
-			this.cadeaux = JSON.parse(datas);
-			//*/
-		},
-		methods: {
-			getIndex: function(ligne, colonne) {
-				return (ligne - 1) * this.nbMaxColonne + colonne - 1;
-			}
-		},
-		template: `
-				<div class="container-fluid">
-					<div class="row" v-for="ligne in Math.ceil(cadeaux.length / nbMaxColonne)">
-						<display-item :item="cadeaux[getIndex(ligne, colonne)]" v-for="colonne in nbMaxColonne" :nbColonne="nbMaxColonne" v-if="cadeaux[getIndex(ligne, colonne)]"></display-item>
-					</div>
-				</div>
-		`
-	});
-
-	var listeCadeauxApp = Vue.extend({
-		name: 'listeCadeauxApp',
-		components: {
-			'login': loginAppSimple,
-			'display-cadeaux': grilleCadeauApp
-		},
-		mounted: function() {
-			var data = $.data(document, "user");
-			if (!data) {
-				router.push('/');
-			}
-		},
-		// extension options
-		template: `
-			<div>
-				<div class="jumbotron">
-					<div class="container">
-						<h1>Pour bébé</h1>
-						<p>
-							Voici quelques cadeaux que nous souhaiterions pour le bébé, si vous avez d'autres idées, vous pouvez les rajouter ;)
-						</p>
-					</div>
-				</div>
-				<display-cadeaux></display-cadeaux>
-			</div>
-		`
-	});
-
-	var BienvenueApp = Vue.extend({
-		name: 'BienvenueApp',
-		template:`
-			<div class="jumbotron">
-				<div class="container">
-					<h1>Bonjour</h1>
-					<p>
-						Pour accéder à la liste de naissance, merci de vous authentifier
-					</p>
-				</div>
-			</div>
-		`
-	});
-
-	const routes = [
-	  { path: '/', component: BienvenueApp },
-	  { path: '/liste-de-naissance', component: listeCadeauxApp }
-	];
-
-	const router = new VueRouter({
-		'routes': routes
-	});
-
-	// create a root instance
-	var appPrincipale = new Vue({
-		el: '#app',
-		data: {
-			user: null
-		},
-		mounted: function() {
+		renderHome: function() {
 			var self = this;
-			$.ajax({
-				url: "api/articles", 
-				method: 'GET',
-				callback: this.callback,
-				success : function(data) {
-					self.cadeaux = JSON.parse(data);
-					//done();
-					//self.$set('cadeaux', JSON.parse(data));
+			//self.isLogged(function(data) {
+			//	self.router.setRoute('/liste-de-naissance');
+			//}, function() {
+				self.renderLogin();
+				self.renderBienvenue();
+			//});
+		},
+		renderListeDeNaissance: function () {
+			var self = this;
+			//self.isLogged(function(data) {
+			//self.user = data;
+			//if (data && data != "null") {
+				if (self.user) {
+					self.renderLogin({
+						login: self.user['user']['login']
+					});
+					self.getListe(self.user['user']['id'], function(data) {
+						self.cadeaux = data;
+						$('#app').html(self.listeNaissanceTemplate({
+							cadeaux: self.cadeaux,
+							nbColonneMax: 12,
+							nbColonneAffichees:3
+						}));
+						$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
+						$('#app').find('.carousel').carousel();
+					}, function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR, textStatus, errorThrown);
+					});
+				} else {
+					self.router.setRoute('/');
 				}
-			});
+			/*} else {
+				self.renderLogin({
+					erreurAuthentification: true
+				});
+			}
+			}, function() {
+				self.router.setRoute('/');
+			})*/;
 		},
-		components: {
-			'bienvenueapp': BienvenueApp,
-			'cadeaux': listeCadeauxApp,
-			'login-simple': loginAppSimple
+		renderEnregistrement: function () {
+			$('#app').html(this.enregistrementTemplate());
+			$('#navbar').empty();
 		},
-		router: router
-	});
+		renderLogin: function (options) {
+			$('#navbar').html(this.formLoginTemplate(options));
+		},
+		renderBienvenue: function () {
+			$('#app').html(this.bienvenueTemplate());
+		}
+	};
 
-	// create a root instance
-	/*var appLogin = new Vue({
-		el: '#simpleLoginApp',
-		components: {
-			'loginSimple': loginAppSimple
-		},
-		template: `<loginSimple></loginSimple>`
-	});*/
-})($);
+	App.init();
+	App.router.init('/');
+})(jQuery);

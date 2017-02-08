@@ -1,37 +1,33 @@
 <?php
-require_once("ArticlesRestHandler.php");
-require_once("LoginRestHandler.php");
+	require_once("ArticlesRestHandler.php");
+	require_once("LoginRestHandler.php");
 
-//var_dump($_GET);
-//var_dump($_POST);
+	//session_start();
 
-$restHandler = null;
-if(isset($_GET["model"]) || isset($_POST["model"])) {
-	$model = $_GET["model"];
+	$restHandler = null;
+	$model = $_REQUEST["model"];
 
 	switch($model) {
 		case "articles":
 			$restHandler = new ArticlesRestHandler();
 			break;
-			
 		case "login":
 			$restHandler = new LoginRestHandler();
 			break;
-		case "isAuthentificate":
-			$restHandler = new IsAuthentificate();
-			break;
-		case "" :
-			//404 - not found;
-			break;
 	}
-} 
 
-//var_dump($restHandler);
-if ($restHandler != null) {
-	if (isset($_GET["model"])) {
-		echo $restHandler->handleGet($_GET);
+	$res = null;
+	if ($restHandler != null) {
+		if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+			$res = $restHandler->handleGet($_GET);
+		} else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$res = $restHandler->handlePost($_POST);
+		}
+
+		if ($res != null) {
+			echo $res;
+		}
 	} else {
-		echo $restHandler->handlePost($_POST);
+		header("HTTP/1.1. 500 Internal Server Error");
 	}
-}
 ?>
