@@ -1,19 +1,11 @@
 <?php 
-	/*
-	A simple RESTful webservices base class
-	Use this as a template and build upon it
-	*/
-	class SimpleRest {
-		protected $bdd;
+	require_once("ConfigurationBDD.php");
 
+	class SimpleRest extends ConfigurationBDD {
 		private $httpVersion = "HTTP/1.1";
 
 		public function __construct() {
-			try {
-				$this->bdd = new PDO('mysql:host=localhost;dbname=liste-de-naissance;charset=utf8', 'client', 'client');
-			} catch(Exception $e) {
-				die('Erreur : '.$e->getMessage());
-			}
+			parent::__construct();
 		}
 
 		public function setHttpHeaders($contentType, $statusCode){

@@ -1,2 +1,3 @@
 .htaccess
+web/services/ConfigurationBDD.php
 node_modules/
