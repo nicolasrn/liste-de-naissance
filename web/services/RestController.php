@@ -2,8 +2,6 @@
 	require_once("ArticlesRestHandler.php");
 	require_once("LoginRestHandler.php");
 
-	//session_start();
-
 	$restHandler = null;
 	$model = $_REQUEST["model"];
 

@@ -27,7 +27,7 @@
 				<div id="navbar" class="navbar-collapse collapse">
 					<script id="login-template" type="text/x-handlebars-template">
 						{{#if login}}
-							<h1 class="navbar-right navbar-brand nomargin">Bonjour, {{login}}</h1>
+							<h1 class="navbar-right navbar-brand nomargin bienvenue">Bonjour, {{login}} <br/> <small><a href="#/deconnexion">se déconnecter</a></small></h1>
 						{{else}}
 							<form method="POST" id="form-authentification" class="navbar-form navbar-right">
 								<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
@@ -163,6 +163,10 @@
 					</div>
 				</div>
 			</script>
+
+			<script id="ajoutArticle-template" type="text/x-handlebars-template">
+
+			</script>
 		</div>
 
 		<!-- JS -->
@@ -170,6 +174,7 @@
 		<script src="/node_modules/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="/node_modules/handlebars/dist/handlebars.js"></script>
 		<script src="/node_modules/director/build/director.js"></script>
+		<script src="/node_modules/js-cookie/src/js.cookie.js"></script>
 		
 		<script src="/plugin.js"></script>
 		<script src="/app.js"></script>

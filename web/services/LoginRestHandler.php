@@ -14,13 +14,7 @@
 		public function handleGet($get) {
 			//var_dump($get);
 			$reponse = null;
-			if (isset($get['action']) && $get['action'] == "isAuthentificate") {
-				if (isset($_SESSION['isAuthentificate']) && $_SESSION['isAuthentificate']) {
-					$this->setHttpHeaders('application/json', 200);
-					return $_SESSION['user'];
-				}
-			}
-			$this->setHttpHeaders('application/json', 401);
+			$this->setHttpHeaders('application/json', 500);
 			return $reponse;
 		}
 
@@ -31,10 +25,9 @@
 				$this->setHttpHeaders('application/json', $reponse['code']);
 				$reponse = $reponse['message'];
 			} else {
-				$reponse = json_encode($this->authentification($post["login"], $post["password"]), JSON_FORCE_OBJECT);
-				$_SESSION['isAuthentificate'] = true;
-				$_SESSION['user'] = $reponse;
-				$this->setHttpHeaders('application/json', $reponse ? 200 : 500);
+				$reponse = $this->authentification($post["login"], $post["password"]);
+				$this->setHttpHeaders('application/json', $reponse['code']);
+				$reponse = json_encode($reponse['message'], JSON_FORCE_OBJECT);
 			}
 			return $reponse;
 		}
@@ -79,7 +72,7 @@
 				);
 			}
 			$this->setHttpHeaders('application/json', $code);
-			return $response;
+			return array('message' => $response, 'code' => $code);
 		}
 
 	}

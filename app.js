@@ -94,33 +94,35 @@
 			this.bienvenueTemplate = Handlebars.compile($('#bienvenue-template').html());
 			this.listeNaissanceTemplate = Handlebars.compile($('#app-template').html());
 			this.enregistrementTemplate = Handlebars.compile($('#enregistrement-template').html());
+			this.ajoutArticleTemplate = Handlebars.compile($('#ajoutArticle-template').html());
 			this.bindEvents();
 
 			var self = this;
 
 			this.router = new Router({
-				'/': function (filter) {
+				'/': function () {
 					self.renderHome();
 				}.bind(this),
-				'/liste-de-naissance': function (filter) {
+				'/liste-de-naissance': function () {
 					self.renderListeDeNaissance();
 				}.bind(this),
-				'/enregistrement': function(filter) {
+				'/enregistrement': function() {
 					self.renderEnregistrement();
+				}.bind(this),
+				'/deconnexion': function() {
+					self.deconnexion();
 				}.bind(this)
 			});
 		},
-		isLogged: function(callbackSuccess, callbackError) {
-			$.ajax({
-				url: "/web/services/RestController.php?model=login&action=isAuthentificate", 
-				method: 'GET',
-				success : function(data) {
-					return callbackSuccess(data);
-				}, 
-				error: function() {
-					return callbackError();
-				}
-			});
+		deconnexion: function() {
+			Cookies.remove('ldn-user');
+			this.renderHome();
+			this.router.setRoute('/');
+		}, 
+		isLogged: function() {
+			var cookie = Cookies.get('ldn-user');
+			this.user = cookie && cookie !== undefined ? JSON.parse(cookie) : null;
+			return this.user != null;
 		},
 		authentificate: function(event) {
 			event.preventDefault();
@@ -136,6 +138,7 @@
 					self.user = data;
 					if (data && data != "null") {
 						self.router.setRoute('/liste-de-naissance');
+						Cookies.set('ldn-user', self.user);
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown ) {
@@ -197,45 +200,34 @@
 		},
 		renderHome: function() {
 			var self = this;
-			//self.isLogged(function(data) {
-			//	self.router.setRoute('/liste-de-naissance');
-			//}, function() {
+			if (!self.isLogged()) {
 				self.renderLogin();
 				self.renderBienvenue();
-			//});
+			} else {
+				self.renderListeDeNaissance();
+			}
 		},
 		renderListeDeNaissance: function () {
 			var self = this;
-			//self.isLogged(function(data) {
-			//self.user = data;
-			//if (data && data != "null") {
-				if (self.user) {
-					self.renderLogin({
-						login: self.user['user']['login']
-					});
-					self.getListe(self.user['user']['id'], function(data) {
-						self.cadeaux = data;
-						$('#app').html(self.listeNaissanceTemplate({
-							cadeaux: self.cadeaux,
-							nbColonneMax: 12,
-							nbColonneAffichees:3
-						}));
-						$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
-						$('#app').find('.carousel').carousel();
-					}, function(jqXHR, textStatus, errorThrown) {
-						console.log(jqXHR, textStatus, errorThrown);
-					});
-				} else {
-					self.router.setRoute('/');
-				}
-			/*} else {
+			if (self.isLogged()) {
 				self.renderLogin({
-					erreurAuthentification: true
+					login: self.user['user']['login']
 				});
-			}
-			}, function() {
+				self.getListe(self.user['user']['id'], function(data) {
+					self.cadeaux = data;
+					$('#app').html(self.listeNaissanceTemplate({
+						cadeaux: self.cadeaux,
+						nbColonneMax: 12,
+						nbColonneAffichees:3
+					}));
+					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
+					$('#app').find('.carousel').carousel();
+				}, function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR, textStatus, errorThrown);
+				});
+			} else {
 				self.router.setRoute('/');
-			})*/;
+			}
 		},
 		renderEnregistrement: function () {
 			$('#app').html(this.enregistrementTemplate());

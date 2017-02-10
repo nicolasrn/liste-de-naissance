@@ -2,11 +2,15 @@ body {
 	padding-top: 56px;
 }
 
+h1.navbar-brand:focus, 
+h1.navbar-brand:hover {
+	color: #9d9d9d;
+}
+
+h1.bienvenue {
+	padding-top: 8px;
+}
+
 .nomargin {
 	margin: 0;	
 } 
-
-.navbar-inverse h1.navbar-brand:focus, 
-.navbar-inverse h1.navbar-brand:hover {
-	color: #9d9d9d;
-}
