@@ -3,8 +3,8 @@
 
 	class LoginRestHandler extends SimpleRest {
 
-		public function __construct() {
-			parent::__construct();
+		public function __construct($action) {
+			parent::__construct($action);
 
 			$this->reqAuthentification = $this->bdd->prepare('select * from tpersonne where login = :login and password = :password');
 			$this->reqAjoutUtilisateur = $this->bdd->prepare('insert into tpersonne (login, password) values(:login, :password)');

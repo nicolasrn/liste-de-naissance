@@ -25,22 +25,26 @@
 					<a class="navbar-brand" href="#">liste de naissance pour bébé</a>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
-					<script id="login-template" type="text/x-handlebars-template">
-						{{#if login}}
-							<h1 class="navbar-right navbar-brand nomargin bienvenue">Bonjour, {{login}} <br/> <small><a href="#/deconnexion">se déconnecter</a></small></h1>
-						{{else}}
-							<form method="POST" id="form-authentification" class="navbar-form navbar-right">
-								<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
-									<input type="text" placeholder="login" id="login" name="login" class="form-control">
-								</div>
-								<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
-									<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control">
-								</div>
-								<button type="submit" class="btn btn-success">Se connecter</button>
-								<a class="btn btn-default" href="#/enregistrement" role="button">S'enregistrer</a>
-							</form>
-						{{/if}}
-					</script>
+					<div id="menuAdmin">
+					</div>
+					<div id="navbar-content">
+						<script id="login-template" type="text/x-handlebars-template">
+							{{#if login}}
+								<h1 class="navbar-right navbar-brand nomargin bienvenue">Bonjour, {{login}} <br/> <small><a href="#/deconnexion">se déconnecter</a></small></h1>
+							{{else}}
+								<form method="POST" id="form-authentification" class="navbar-form navbar-right">
+									<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+										<input type="text" placeholder="login" id="login" name="login" class="form-control">
+									</div>
+									<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+										<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control">
+									</div>
+									<button type="submit" class="btn btn-success">Se connecter</button>
+									<a class="btn btn-default" href="#/enregistrement" role="button">S'enregistrer</a>
+								</form>
+							{{/if}}
+						</script>
+					</div>
 				</div>
 			</div>
 		</nav>
@@ -94,7 +98,6 @@
 									</a>
 								</div>
 
-								<!--<img src="{{this.img}}"/>-->
 								<div class="caption">
 									<h2>{{this.libelle}}</h2>
 									<div class="compteur" id="compteur-{{this.id}}">
@@ -165,7 +168,46 @@
 			</script>
 
 			<script id="ajoutArticle-template" type="text/x-handlebars-template">
-
+				<div class="jumbotron">
+					<div class="container">
+						<form class="form-horizontal" action="/web/services/RestController.php" method="POST" enctype="multipart/form-data" id="ajoutArticle">
+							<div class="form-group hidden" id="resultatAjoutArticle">
+								<span class="help-block"></span>
+							</div>
+							<div class="form-group">
+								<label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="libelle" id="libelleArticle" placeholder="Libellé de l'article">
+								</div>
+							</div>
+							<div class="form-group compteur" id="compteur-nouvelArticle">
+								<label for="quantiteSouhaitee" class="col-sm-2 control-label">Quantite Souhaitée</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" name="quantiteSouhaitee" id="quantiteSouhaitee" value="0" readonly/>
+								</div>
+								<div class="input-group-btn col-sm-2">
+									<button type="button" class="btn btn-default moins">-</button>
+									<button type="button" class="btn btn-default plus">+</button>
+								</div>
+							</div>
+							<div class="list-image">
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-offset-2 col-sm-10">
+									<button type="submit" class="btn btn-danger">Enregistrer l'article</button>
+									<button type="reset" class="btn btn-warning">vider</button>
+								</div>
+							</div>
+							<input type="hidden" name="model" value="articles"/>
+							<input type="hidden" name="action" value="addArticle"/>
+						</form>
+					</div>
+				</div>
 			</script>
 		</div>
 

@@ -8,9 +8,13 @@
 		private $reqUpdate;
 		private $reqSelectForUpdate;
 		private $reqInsert;
+		private $reqInsertArticle;
+		private $reqInsertImages;
+		private $siteRoot;
 
-		public function __construct() {
-			parent::__construct();
+		public function __construct($action) {
+			parent::__construct($action);
+			$this->siteRoot = realpath(dirname(__FILE__)) . '/../..';
 
 			$this->reqArticles = $this->bdd->prepare('select id, libelle, COALESCE(quantiteSouhaitee, 0) as quantiteSouhaitee, COALESCE(sum(quantiteReservee), 0) as quantiteReserveeTotale from tarticle a left join PersonneReserveCadeau prc on prc.idArticle = a.id group by a.id, a.libelle, a.quantiteSouhaitee');
 			$this->reqArticleParUtilisateur = $this->bdd->prepare('select prc.quantiteReservee from TPersonne p join PersonneReserveCadeau prc on p.id = prc.idPersonne and prc.idArticle = :idArticle where p.id = :idPersonne');
@@ -19,6 +23,8 @@
 			$this->reqSelectForUpdate = $this->bdd->prepare('select * from personnereservecadeau where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqUpdate = $this->bdd->prepare('update personnereservecadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqInsert = $this->bdd->prepare('insert into personnereservecadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
+			$this->reqInsertArticle = $this->bdd->prepare('insert into tarticle (libelle, quantiteSouhaitee) values (:libelle, :quantiteSouhaitee)');
+			$this->reqInsertImages = $this->bdd->prepare('insert into timage (src, idArticle) values (:src, :idArticle)');
 		}
 
 		public function handleGet($get) {
@@ -79,25 +85,87 @@
 		}
 
 		public function handlePost($post) {
-			$idUser = $post['idUser'];
-			$idArticle = $post['idArticle'];
-			$newValue = $post['newValue'];
+			$res = null;
+			if (isset($post['action']) && $post['action'] == 'addArticle') {
+				$resImages = $this->enregristrerArticle($post);
+				$res = json_encode(array('id' => $resImages['idArticle'], 'message' => $resImages['message']), JSON_FORCE_OBJECT);
+			} else if (isset($post['action']) && $post['action'] == 'updateReservation') {
+				$idUser = $post['idUser'];
+				$idArticle = $post['idArticle'];
+				$newValue = $post['newValue'];
 
-			if ($this->isUtilisateurADejaReserve($idUser, $idArticle)) {
-				$res = $this->reqUpdate->execute(array(
-					'idArticle' => $idArticle,
-					'idPersonne' => $idUser,
-					'valeur' => $newValue
-				));	
-			} else {
-				$res = $this->reqInsert->execute(array(
-					'idArticle' => $idArticle,
-					'idPersonne' => $idUser,
-					'valeur' => $newValue
-				));
+				if ($this->isUtilisateurADejaReserve($idUser, $idArticle)) {
+					$res = $this->reqUpdate->execute(array(
+						'idArticle' => $idArticle,
+						'idPersonne' => $idUser,
+						'valeur' => $newValue
+					));	
+				} else {
+					$res = $this->reqInsert->execute(array(
+						'idArticle' => $idArticle,
+						'idPersonne' => $idUser,
+						'valeur' => $newValue
+					));
+				}
 			}
 			$this->setHttpHeaders('application/json', $res ? 200 : 500);
+			return $res;
 		}
 
+		public function enregristrerArticle($post) {
+			$resImages = $this->handleUploadFile($_FILES);
+			if ($resImages['isSuccess']) {
+				$this->reqInsertArticle->execute(array(
+					'libelle' => $post['libelle'], 
+					'quantiteSouhaitee' => $post['quantiteSouhaitee']
+				));
+				$idArticle = $this->bdd->lastInsertId();
+				$resImages['idArticle'] = $idArticle;
+				$resImages = $this->enregristrerImage($resImages, $idArticle);
+			}
+			return $resImages;
+		}
+
+		public function enregristrerImage($resImages, $idArticle) {
+			foreach ($resImages['paths'] as $path) {
+				$path = str_replace($this->siteRoot, '', $path);
+				$res = $this->reqInsertImages->execute(array(
+					'src' => $path,
+					'idArticle' => $idArticle
+				));
+			}
+			
+			return $resImages;
+		}
+
+		public function handleUploadFile($file) {
+			$target_dir = $this->siteRoot . "/img/";
+			$message = array();
+			$paths = array();
+			$isSuccess = true;
+
+			foreach ($file as $fileId => $fileData) {
+				$fileName = $_FILES[$fileId]["name"];
+				$target_file = $target_dir . basename($fileName);
+
+				$uploadOk = true;
+				$check = getimagesize($_FILES[$fileId]["tmp_name"]);
+				if($check !== false) {
+					$uploadOk = true;
+				} else {
+					$uploadOk = false;
+					$isSuccess = false;
+					$message[] = "$fileName - n'est pas une image";
+				}
+				// Check if $uploadOk is set to 0 by an error
+				if ($uploadOk) {
+					if (move_uploaded_file($_FILES[$fileId]["tmp_name"], $target_file)) {
+						$message[] = "$fileName - à bien été téléchargé";
+						$paths[] = $target_file;
+					}
+				}
+			}
+			return array('message' => $message, 'paths' => $paths, 'isSuccess' => $isSuccess);
+		}
 	}
 ?>

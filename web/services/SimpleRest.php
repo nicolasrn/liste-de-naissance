@@ -3,15 +3,17 @@
 
 	class SimpleRest extends ConfigurationBDD {
 		private $httpVersion = "HTTP/1.1";
+		protected $action;
 
-		public function __construct() {
+		public function __construct($action) {
 			parent::__construct();
+			$this->action = $action;
 		}
 
 		public function setHttpHeaders($contentType, $statusCode){
 			$statusMessage = $this -> getHttpStatusMessage($statusCode);
 			
-			header($this->httpVersion. " ". $statusCode ." ". $statusMessage);		
+			header($this->httpVersion . " " . $statusCode . " " . $statusMessage);
 			header("Content-Type:". $contentType);
 		}
 		

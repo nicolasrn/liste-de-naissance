@@ -106,6 +106,12 @@
 				'/liste-de-naissance': function () {
 					self.renderListeDeNaissance();
 				}.bind(this),
+				'/liste-de-naissance/edit/:id': function(id) {
+					self.renderEdit(id);
+				}.bind(this),
+				'/liste-de-naissance/edit': function() {
+					self.renderEdit(null);
+				}.bind(this),
 				'/enregistrement': function() {
 					self.renderEnregistrement();
 				}.bind(this),
@@ -139,6 +145,9 @@
 					if (data && data != "null") {
 						self.router.setRoute('/liste-de-naissance');
 						Cookies.set('ldn-user', self.user);
+						$.get('/web/menuAdmin.php', null, function(data) {
+							$('#menuAdmin').html(data);
+						});
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown ) {
@@ -194,9 +203,29 @@
 				});
 			}
 		},
+		ajoutArticle: function(event) {
+			event.preventDefault();
+
+			$.ajax({
+				url: "/web/services/RestController.php",
+				data: new FormData(event.target),
+				method: 'POST',
+				cache: false,
+				processData: false,
+				contentType: false,
+				success: function (data) {
+					$('#resultatAjoutArticle span').html("l'article à bien été inséré");
+					$('#resultatAjoutArticle').addClass('has-success').removeClass('hidden');
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(jqXHR, textStatus, errorThrown);
+				}
+			});
+		},
 		bindEvents: function () {
 			$('#navbar').on('submit', 'form#form-authentification', this.authentificate.bind(this));
 			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
+			$('#app').on('submit', 'form#ajoutArticle', this.ajoutArticle.bind(this));
 		},
 		renderHome: function() {
 			var self = this;
@@ -229,12 +258,33 @@
 				self.router.setRoute('/');
 			}
 		},
+		renderEdit: function(id) {
+			var self = this;
+			if (self.isLogged()) {
+				self.renderLogin({
+					login: self.user['user']['login']
+				});
+				self.renderFormArticle(id);
+			} else {
+				this.router.setRoute('/');
+			}
+		},
+		renderFormArticle: function(id) {
+			if (id && id !== undefined && id != null) {
+				//appel ajax pour récupérer les données chargées ... ou pas il suffit de récupérer l'item dans la liste ...
+				$('#app').html(this.ajoutArticleTemplate());
+			} else {
+				$('#app').html(this.ajoutArticleTemplate());
+			}
+			$('#app').find('.compteur').compteur({idUser: this.user['user']['id'], isEditMode: true});
+			$('#app').find('#ajouterImage').addFileToForm();
+		},
 		renderEnregistrement: function () {
 			$('#app').html(this.enregistrementTemplate());
 			$('#navbar').empty();
 		},
 		renderLogin: function (options) {
-			$('#navbar').html(this.formLoginTemplate(options));
+			$('#navbar-content').html(this.formLoginTemplate(options));
 		},
 		renderBienvenue: function () {
 			$('#app').html(this.bienvenueTemplate());
@@ -243,4 +293,8 @@
 
 	App.init();
 	App.router.init('/');
+	
+	$.get('/web/menuAdmin.php', null, function(data) {
+		$('#menuAdmin').html(data);
+	});
 })(jQuery);

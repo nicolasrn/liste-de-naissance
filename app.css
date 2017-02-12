@@ -14,3 +14,7 @@ h1.bienvenue {
 .nomargin {
 	margin: 0;	
 } 
+
+.carousel img {
+	max-height: 250px;
+}

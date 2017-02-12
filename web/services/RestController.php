@@ -3,14 +3,40 @@
 	require_once("LoginRestHandler.php");
 
 	$restHandler = null;
-	$model = $_REQUEST["model"];
 
-	switch($model) {
+	function getModelAction() {
+		$model = null;
+		$action = null;
+		if (isset($_REQUEST["model"])) {
+			$model = $_REQUEST["model"];
+			if (isset($_REQUEST["action"])) {
+				$action = $_REQUEST["action"];
+			}
+		} else if (isset($_POST["model"])) {
+			$model = $_POST["model"];
+			if (isset($_POST["action"])) {
+				$action = $_POST["action"];
+			}
+		} else if (isset($_GET["model"])) {
+			$model = $_GET["model"];
+			if (isset($_GET["action"])) {
+				$action = $_GET["action"];
+			}
+		} else {
+			header("HTTP/1.1. 400 Bad Request");
+			exit;
+		}
+		return array('model' => $model, 'action' => $action);
+	}
+
+	$dispatcher = getModelAction();
+	
+	switch($dispatcher['model']) {
 		case "articles":
-			$restHandler = new ArticlesRestHandler();
+			$restHandler = new ArticlesRestHandler($dispatcher['action']);
 			break;
 		case "login":
-			$restHandler = new LoginRestHandler();
+			$restHandler = new LoginRestHandler($dispatcher['action']);
 			break;
 	}
 

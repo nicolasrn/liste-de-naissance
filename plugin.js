@@ -1,6 +1,31 @@
 ;(function($) {
 	'use-strict';
 
+	$.fn.addFileToForm = function (options) {
+
+		var defauts = {
+			itemForAppend: $(this).parents('form').find('.list-image'),
+			model: `<div class="form-group">
+						<label for="image-{{0}}" class="col-sm-2 control-label">Image {{0}}</label>
+						<div class="col-sm-10">
+							<input type="file" name="image-{{0}}" id="image-{{0}}">
+						</div>
+					</div>`
+		}; 
+
+		defauts = $.extend(defauts, options); 
+
+		return $(this).each(function(index, element) {
+			var index = 0;
+			var btnAjoutFichier = $(this);
+
+			btnAjoutFichier.on('click', function (event) {
+				var template = defauts['model'].replace(/\{\{0\}\}/g, ++index).replace(/\{\{1\}\}/g, index + 1);
+				$(defauts['itemForAppend']).append($(template));
+			});
+		});
+	};
+
 	$.fn.compteur = function(options) {
 		function updateData(event, data) {
 			$.ajax({
@@ -8,6 +33,7 @@
 				method: 'POST',
 				data: {
 					'model': 'articles',
+					'action': 'updateReservation',
 					'idUser': data.idUser,
 					'idArticle': data.idArticle,
 					'newValue': data.newValue
@@ -16,13 +42,14 @@
 					console.log(data);
 				}, 
 				error: function(jqXHR, textStatus, errorThrown) {
-					console.log(data, jqXHR, textStatus, errorThrown);
+					console.log(jqXHR, textStatus, errorThrown);
 				}
 			});
 		}
 
 		var defauts = {
-			idUser: null
+			idUser: null,
+			isEditMode: false
 		}; 
 
 		defauts = $.extend(defauts, options); 
@@ -49,7 +76,9 @@
 				}
 				event.data.inputCompteur.val(qteUtilisateur);
 				event.data.labelQteReserve.text(qteReservee);
-				$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+				if (defauts['isEditMode'] === false) { 
+					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+				}
 			});
 			var jButtonMoins = jElement.find('button.moins').on('click', {labelQteReserve: jQteReservee, inputCompteur: jInput, min: qteMin}, function(event) {
 				qteUtilisateur = parseInt(event.data.inputCompteur.val());
@@ -61,12 +90,16 @@
 				}
 				event.data.inputCompteur.val(qteUtilisateur);
 				event.data.labelQteReserve.text(qteReservee);
-				$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+
+				if (defauts['isEditMode'] === false) { 
+					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+				}
 			});
 
-			jButtonMoins.on('updateData', updateData);
-			jButtonPlus.on('updateData', updateData);
-
+			if (defauts['isEditMode'] === false) { 
+				jButtonMoins.on('updateData', updateData);
+				jButtonPlus.on('updateData', updateData);
+			}
 		});
-	}
+	};
 })(jQuery);
