@@ -16,15 +16,15 @@
 			parent::__construct($action);
 			$this->siteRoot = realpath(dirname(__FILE__)) . '/../..';
 
-			$this->reqArticles = $this->bdd->prepare('select id, libelle, COALESCE(quantiteSouhaitee, 0) as quantiteSouhaitee, COALESCE(sum(quantiteReservee), 0) as quantiteReserveeTotale from tarticle a left join PersonneReserveCadeau prc on prc.idArticle = a.id group by a.id, a.libelle, a.quantiteSouhaitee');
+			$this->reqArticles = $this->bdd->prepare('select id, libelle, COALESCE(quantiteSouhaitee, 0) as quantiteSouhaitee, COALESCE(sum(quantiteReservee), 0) as quantiteReserveeTotale from TArticle a left join PersonneReserveCadeau prc on prc.idArticle = a.id group by a.id, a.libelle, a.quantiteSouhaitee');
 			$this->reqArticleParUtilisateur = $this->bdd->prepare('select prc.quantiteReservee from TPersonne p join PersonneReserveCadeau prc on p.id = prc.idPersonne and prc.idArticle = :idArticle where p.id = :idPersonne');
-			$this->reqImage = $this->bdd->prepare('select src from timage where idArticle = :idArticle');
+			$this->reqImage = $this->bdd->prepare('select src from TImage where idArticle = :idArticle');
 
-			$this->reqSelectForUpdate = $this->bdd->prepare('select * from personnereservecadeau where idArticle = :idArticle and idPersonne = :idPersonne');
-			$this->reqUpdate = $this->bdd->prepare('update personnereservecadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
-			$this->reqInsert = $this->bdd->prepare('insert into personnereservecadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
-			$this->reqInsertArticle = $this->bdd->prepare('insert into tarticle (libelle, quantiteSouhaitee) values (:libelle, :quantiteSouhaitee)');
-			$this->reqInsertImages = $this->bdd->prepare('insert into timage (src, idArticle) values (:src, :idArticle)');
+			$this->reqSelectForUpdate = $this->bdd->prepare('select * from PersonneReserveCadeau where idArticle = :idArticle and idPersonne = :idPersonne');
+			$this->reqUpdate = $this->bdd->prepare('update PersonneReserveCadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
+			$this->reqInsert = $this->bdd->prepare('insert into PersonneReserveCadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
+			$this->reqInsertArticle = $this->bdd->prepare('insert into TArticle (libelle, quantiteSouhaitee) values (:libelle, :quantiteSouhaitee)');
+			$this->reqInsertImages = $this->bdd->prepare('insert into TImage (src, idArticle) values (:src, :idArticle)');
 		}
 
 		public function handleGet($get) {
