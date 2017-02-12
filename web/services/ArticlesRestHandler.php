@@ -88,7 +88,11 @@
 			$res = null;
 			if (isset($post['action']) && $post['action'] == 'addArticle') {
 				$resImages = $this->enregristrerArticle($post);
-				$res = json_encode(array('id' => $resImages['idArticle'], 'message' => $resImages['message']), JSON_FORCE_OBJECT);
+				if (!isset($resImages['idArticle'])) {
+					$resImages['idArticle'] = -1;
+				}
+				$res = json_encode(array('id' => $resImages['idArticle'] , 'message' => $resImages['message']), JSON_FORCE_OBJECT);
+				$this->setHttpHeaders('application/json', $resImages['idArticle'] > -1 ? 200 : 500);
 			} else if (isset($post['action']) && $post['action'] == 'updateReservation') {
 				$idUser = $post['idUser'];
 				$idArticle = $post['idArticle'];
@@ -107,8 +111,8 @@
 						'valeur' => $newValue
 					));
 				}
+				$this->setHttpHeaders('application/json', $res ? 200 : 500);
 			}
-			$this->setHttpHeaders('application/json', $res ? 200 : 500);
 			return $res;
 		}
 
@@ -143,29 +147,38 @@
 			$message = array();
 			$paths = array();
 			$isSuccess = true;
+			$nbImage = 0;
 
 			foreach ($file as $fileId => $fileData) {
 				$fileName = $_FILES[$fileId]["name"];
-				$target_file = $target_dir . basename($fileName);
+				if (!empty($fileName)) {
+					$nbImage++;
+					$target_file = $target_dir . basename($fileName);
 
-				$uploadOk = true;
-				$check = getimagesize($_FILES[$fileId]["tmp_name"]);
-				if($check !== false) {
 					$uploadOk = true;
-				} else {
-					$uploadOk = false;
-					$isSuccess = false;
-					$message[] = "$fileName - n'est pas une image";
-				}
-				// Check if $uploadOk is set to 0 by an error
-				if ($uploadOk) {
-					if (move_uploaded_file($_FILES[$fileId]["tmp_name"], $target_file)) {
-						$message[] = "$fileName - à bien été téléchargé";
-						$paths[] = $target_file;
+					$check = getimagesize($_FILES[$fileId]["tmp_name"]);
+					if($check !== false) {
+						$uploadOk = true;
+					} else {
+						$uploadOk = false;
+						$isSuccess = false;
+						$message[] = "$fileName - n'est pas une image";
+					}
+					// Check if $uploadOk is set to 0 by an error
+					if ($uploadOk) {
+						if (move_uploaded_file($_FILES[$fileId]["tmp_name"], $target_file)) {
+							$message[] = "$fileName - à bien été téléchargé";
+							$paths[] = $target_file;
+						}
 					}
 				}
 			}
-			return array('message' => $message, 'paths' => $paths, 'isSuccess' => $isSuccess);
+
+			if ($nbImage > 0) {
+				return array('message' => $message, 'paths' => $paths, 'isSuccess' => $isSuccess);
+			}
+
+			return array('message' => "aucune image n'a été trouvée", 'paths' => $paths, 'isSuccess' => false); 
 		}
 	}
 ?>

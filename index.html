@@ -103,7 +103,7 @@
 									<div class="compteur" id="compteur-{{this.id}}">
 										<div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
 										<div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotal}}</span> réserve(s)</div>
-										<div class="input-group col-sm-5 col-md-5">
+										<div class="input-group col-sm-12 col-md-12">
 											<input type="text" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
 											<div class="input-group-btn">
 												<button type="button" class="btn btn-default moins">-</button>
@@ -142,18 +142,21 @@
 								<label for="login" class="col-sm-4 control-label">Login</label>
 								<div class="col-sm-8">
 									<input type="text" name="login" class="form-control" id="login" placeholder="Login">
+									<span class="help-block"></span>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="password" class="col-sm-4 control-label">mot de passe</label>
 								<div class="col-sm-8">
 									<input type="password" name="password" class="form-control" id="password" placeholder="mot de passe">
+									<span class="help-block"></span>
 								</div>
 							</div>
 							<div class="form-group">
 								<label for="password2" class="col-sm-4 control-label">confirmer le mot de passe</label>
 								<div class="col-sm-8">
 									<input type="password" name="password2" class="form-control" id="password2" placeholder="confirmer le mot de passe">
+									<span class="help-block"></span>
 								</div>
 							</div>
 
@@ -171,7 +174,7 @@
 				<div class="jumbotron">
 					<div class="container">
 						<form class="form-horizontal" action="/web/services/RestController.php" method="POST" enctype="multipart/form-data" id="ajoutArticle">
-							<div class="form-group hidden" id="resultatAjoutArticle">
+							<div class="form-group" id="resultatAjoutArticle">
 								<span class="help-block"></span>
 							</div>
 							<div class="form-group">
@@ -185,7 +188,7 @@
 								<div class="col-sm-9">
 									<input type="text" class="form-control" name="quantiteSouhaitee" id="quantiteSouhaitee" value="0" readonly/>
 								</div>
-								<div class="input-group-btn col-sm-5 col-md-5">
+								<div class="input-group-btn col-sm-12 col-md-12">
 									<button type="button" class="btn btn-default moins">-</button>
 									<button type="button" class="btn btn-default plus">+</button>
 								</div>
@@ -195,10 +198,6 @@
 							<div class="form-group">
 								<div class="col-sm-offset-2 col-sm-10">
 									<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
-								</div>
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
 									<button type="submit" class="btn btn-danger">Enregistrer l'article</button>
 									<button type="reset" class="btn btn-warning">vider</button>
 								</div>

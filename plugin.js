@@ -1,29 +1,36 @@
 ;(function($) {
 	'use-strict';
 
-	$.fn.addFileToForm = function (options) {
+	$.fn.addFileToForm = function (options, cle, value) {
+		if (cle === undefined && value === undefined) {
+			var defauts = {
+				itemForAppend: $(this).parents('form').find('.list-image'),
+				model: `<div class="form-group">
+							<label for="image-{{0}}" class="col-sm-2 control-label">Image {{0}}</label>
+							<div class="col-sm-10">
+								<input type="file" name="image-{{0}}" id="image-{{0}}">
+							</div>
+						</div>`
+			}; 
 
-		var defauts = {
-			itemForAppend: $(this).parents('form').find('.list-image'),
-			model: `<div class="form-group">
-						<label for="image-{{0}}" class="col-sm-2 control-label">Image {{0}}</label>
-						<div class="col-sm-10">
-							<input type="file" name="image-{{0}}" id="image-{{0}}">
-						</div>
-					</div>`
-		}; 
+			defauts = $.extend(defauts, options); 
 
-		defauts = $.extend(defauts, options); 
+			return $(this).each(function(index, element) {
+				var btnAjoutFichier = $(this);
+				btnAjoutFichier.data('index', 0);
 
-		return $(this).each(function(index, element) {
-			var index = 0;
-			var btnAjoutFichier = $(this);
-
-			btnAjoutFichier.on('click', function (event) {
-				var template = defauts['model'].replace(/\{\{0\}\}/g, ++index).replace(/\{\{1\}\}/g, index + 1);
-				$(defauts['itemForAppend']).append($(template));
+				btnAjoutFichier.on('click', function (event) {
+					var index = btnAjoutFichier.data('index');
+					var template = defauts['model'].replace(/\{\{0\}\}/g, ++index).replace(/\{\{1\}\}/g, index + 1);
+					btnAjoutFichier.data('index', index);
+					$(defauts['itemForAppend']).append($(template));
+				});
 			});
-		});
+		} else {
+			return $(this).each(function(index, element) {
+				$(this).data(cle, value);
+			});
+		}
 	};
 
 	$.fn.compteur = function(options) {

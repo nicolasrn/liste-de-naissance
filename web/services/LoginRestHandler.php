@@ -21,7 +21,7 @@
 		public function handlePost($post) {
 			$reponse = null;
 			if (isset($_GET['action']) && $_GET['action'] == "enregistrement") {
-				$reponse = $this->enregistrement($post['login'], $post['password']);
+				$reponse = $this->enregistrement($post['login'], $post['password'], $post['password2']);
 				$this->setHttpHeaders('application/json', $reponse['code']);
 				$reponse = $reponse['message'];
 			} else {
@@ -32,16 +32,22 @@
 			return $reponse;
 		}
 
-		private function enregistrement($login, $password) {
+		private function enregistrement($login, $password, $password2) {
 			$res = null;
-			if ($this->isUtilisateurUnique($login)) {
+			if (empty($login)) {
+				$res = array('message' => 'le login est vide', 'code' => 500);
+			} else if (empty($password)  || empty($password2)) {
+				$res = array('message' => 'les deux mots de passe ne peuvent être vide', 'code' => 500);
+			}  else if ($password != $password2) {
+				$res = array('message' => 'les deux mots de passe sont différents', 'code' => 500);
+			} else if (!$this->isUtilisateurUnique($login)) {
+				$res = array('message' => 'login déjà utilisé', 'code' => 500);
+			} else {
 				$res = $this->reqAjoutUtilisateur->execute(array(
 					'login' => $login,
 					'password' => $password
 				));	
 				$res = array('message' => $res, 'code' => 200);
-			} else {
-				$res = array('message' => 'login déjà utilisé', 'code' => 500);
 			}
 			return $res;
 		}

@@ -182,23 +182,52 @@
 			var login = form.login.value;
 			var password = form.password.value;
 			var confirmationPassword = form.password2.value;
+			var isErreur = false;
 			
-			if (password !== confirmationPassword) {
+			$(form).find('.has-error').removeClass('has-error');
+			$(form).find('span.help-block').empty();
+
+			if (password == '' || confirmationPassword == '') {
+				if (password == '') {
+					$(form.password).parents('div.form-group').addClass('has-error');
+					$(form.password).parent().find('span.help-block').html('les deux mots de passe ne peuvent être vide');
+				} 
+				if (confirmationPassword == '') {
+					$(form.password2).parents('div.form-group').addClass('has-error');
+					$(form.password2).parent().find('span.help-block').html('les deux mots de passe ne peuvent être vide');
+				}
+				isErreur = true;
+			} else if (password !== confirmationPassword) {
 				$(form.password).parents('div.form-group').addClass('has-error');
 				$(form.password2).parents('div.form-group').addClass('has-error');
-			} else {
+				$(form.password).parent().find('span.help-block').html('les deux mots de passe sont différents');
+				$(form.password2).parent().find('span.help-block').html('les deux mots de passe sont différents');
+				isErreur = true;
+			}
+
+			if (login === '') {
+				var loginField = $(form).find('input[name=login]');
+				loginField.parents('.form-group').addClass('has-error');
+				loginField.parent().find('span.help-block').html('le login ne peut être vide');
+				isErreur = true;
+			}
+
+			if (!isErreur) {
 				$.ajax({
 					url: "/web/services/RestController.php?model=login&action=enregistrement", 
 					method: 'POST',
 					data : {
 						'login': login,
-						'password': password
+						'password': password,
+						'password2': confirmationPassword
 					},
 					success : function(data) {
 						self.router.setRoute('/');
 					},
 					error: function(jqXHR, textStatus, errorThrown ) {
-						console.log(jqXHR, textStatus, errorThrown);
+						var loginField = $(form).find('input[name=login]');
+						loginField.parents('.form-group').addClass('has-error');
+						loginField.parent().find('span.help-block').html(jqXHR.responseText);
 					}
 				});
 			}
@@ -206,26 +235,67 @@
 		ajoutArticle: function(event) {
 			event.preventDefault();
 
-			$.ajax({
-				url: "/web/services/RestController.php",
-				data: new FormData(event.target),
-				method: 'POST',
-				cache: false,
-				processData: false,
-				contentType: false,
-				success: function (data) {
-					$('#resultatAjoutArticle span').html("l'article à bien été inséré");
-					$('#resultatAjoutArticle').addClass('has-success').removeClass('hidden');
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log(jqXHR, textStatus, errorThrown);
-				}
-			});
+			var quantiteSouhaitee = event.target.quantiteSouhaitee.value;
+			var libelle = event.target.libelle.value;
+			var erreur = false;
+
+			var spanHelp = $(event.target).find('#resultatAjoutArticle span.help-block');
+			var spanHelpParent = $(event.target).find('#resultatAjoutArticle');
+			spanHelp.empty();
+			spanHelpParent.removeClass('has-error');
+			spanHelpParent.removeClass('has-success');
+
+			if (libelle == '') {
+				spanHelp.html(spanHelp.html() + " le libellé ne doit pas être vide"); 
+				spanHelpParent.addClass('has-error');
+				erreur = true;
+			}
+			if (quantiteSouhaitee == 0) {
+				spanHelp.html(spanHelp.html() + "<br/>attention la quantite souhaitée est nulle");
+				spanHelpParent.addClass('has-error');
+				erreur = true;
+			}
+
+			if (!erreur) {
+				$.ajax({
+					url: "/web/services/RestController.php",
+					data: new FormData(event.target),
+					method: 'POST',
+					cache: false,
+					processData: false,
+					contentType: false,
+					success: function (data) {
+						var message = function(messageList) {
+							if (messageList) {
+								var messages = $.map(messageList, function(valeur, index) {
+									return '<li>' + valeur + '</li>';
+								});
+								return '<ul>' + messages.join('') + '</ul>';
+							}
+							return "";
+						}(data['message']);
+						$('#resultatAjoutArticle span.help-block').html("l'article a bien été inséré : " + message);
+						$('#resultatAjoutArticle').addClass('has-success');
+						event.target.reset();
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						var res = JSON.parse(jqXHR.responseText)['message'];
+
+						$('#resultatAjoutArticle span.help-block').html(res);
+						$('#resultatAjoutArticle').addClass('has-error');
+					}
+				});
+			}
 		},
 		bindEvents: function () {
 			$('#navbar').on('submit', 'form#form-authentification', this.authentificate.bind(this));
 			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
 			$('#app').on('submit', 'form#ajoutArticle', this.ajoutArticle.bind(this));
+			$('#app').on('reset', 'form#ajoutArticle', function(event) {
+				event.target.reset();
+				$('.list-image').empty();
+				$('#app').find('#ajouterImage').addFileToForm({}, 'index', 0);
+			}.bind(this));
 		},
 		renderHome: function() {
 			var self = this;
@@ -247,7 +317,7 @@
 					$('#app').html(self.listeNaissanceTemplate({
 						cadeaux: self.cadeaux,
 						nbColonneMax: 12,
-						nbColonneAffichees:3
+						nbColonneAffichees:4
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
