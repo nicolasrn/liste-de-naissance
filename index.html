@@ -67,20 +67,20 @@
 					<div class="row">
 					{{/ifmod}}
 						<div class="col-md-{{math @root.nbColonneMax '/' @root.nbColonneAffichees}}">
-							<div class="thumbnail">
+							<div id="article-{{this.id}}" class="thumbnail">
 								<div id="carousel-{{this.id}}" class="carousel slide" data-ride="carousel" data-interval="false">
 									<!-- Indicators -->
 									<ol class="carousel-indicators">
-										{{#eachWithParent img this.id}}
+										{{#eachWithParent this.img this.id}}
 											<li data-target="#carousel-{{@parentId}}" data-slide-to="{{@index}}" class="{{#eq @index 0}}active{{/eq}}"></li>
 										{{/eachWithParent}}
 									</ol>
-
+									
 									<!-- Wrapper for slides -->
 									<div class="carousel-inner">
 										{{#each this.img}}
 										<div class="item {{#eq @index 0}}active{{/eq}}">
-											<img src="{{this}}" class="img-responsive center-block">
+											<img src="{{this.src}}" class="img-responsive center-block">
 											<div class="carousel-caption">
 											</div>
 										</div>
@@ -180,13 +180,13 @@
 							<div class="form-group">
 								<label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
 								<div class="col-sm-10">
-									<input type="text" class="form-control" name="libelle" id="libelleArticle" placeholder="Libellé de l'article">
+									<input type="text" class="form-control" name="libelle" value="{{this.libelle}}" id="libelleArticle" placeholder="Libellé de l'article">
 								</div>
 							</div>
 							<div class="form-group compteur" id="compteur-nouvelArticle">
 								<label for="quantiteSouhaitee" class="col-sm-2 control-label">Quantite Souhaitée</label>
 								<div class="col-sm-9">
-									<input type="text" class="form-control" name="quantiteSouhaitee" id="quantiteSouhaitee" value="0" readonly/>
+									<input type="text" class="form-control" name="quantiteSouhaitee" value="{{this.quantiteSouhaitee}}" id="quantiteSouhaitee" value="0" readonly/>
 								</div>
 								<div class="input-group-btn col-sm-12 col-md-12">
 									<button type="button" class="btn btn-default moins">-</button>
@@ -203,7 +203,9 @@
 								</div>
 							</div>
 							<input type="hidden" name="model" value="articles"/>
-							<input type="hidden" name="action" value="addArticle"/>
+							<input type="hidden" name="action" value="{{#if creation}}addArticle{{else}}updateArticle{{/if}}"/>
+							<input type="hidden" name="idArticle" value="{{id}}"/>
+							<input type="hidden" name="toDelete" value=""/>
 						</form>
 					</div>
 				</div>

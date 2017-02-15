@@ -60,6 +60,18 @@
 					}
 					ret = ret + fn(context[i], { data: data });
 				}
+			} else  {
+				for (var property in context) {
+					if (context.hasOwnProperty(property)) {
+						if (data) {
+							data.index = i++;
+							data.indexProperty = property;
+							data.first = !data.first ? property : data.first;
+							data.parentId = parentId;
+						}
+						ret = ret + fn(context[property], { data: data });
+					}
+				}
 			}
 		}
 
@@ -164,6 +176,7 @@
 				url: "/web/services/RestController.php", 
 				data: {
 					model: 'articles',
+					action: 'getAll',
 					idUser: idUser
 				},
 				method: 'GET',
@@ -265,18 +278,22 @@
 					processData: false,
 					contentType: false,
 					success: function (data) {
-						var message = function(messageList) {
-							if (messageList) {
-								var messages = $.map(messageList, function(valeur, index) {
-									return '<li>' + valeur + '</li>';
-								});
-								return '<ul>' + messages.join('') + '</ul>';
-							}
-							return "";
-						}(data['message']);
-						$('#resultatAjoutArticle span.help-block').html("l'article a bien été inséré : " + message);
-						$('#resultatAjoutArticle').addClass('has-success');
-						event.target.reset();
+						if (event.target.action == 'addArticle') {
+							var message = function(messageList) {
+								if (messageList) {
+									var messages = $.map(messageList, function(valeur, index) {
+										return '<li>' + valeur + '</li>';
+									});
+									return '<ul>' + messages.join('') + '</ul>';
+								}
+								return "";
+							}(data['message']);
+							$('#resultatAjoutArticle span.help-block').html("l'article a bien été inséré : " + message);
+							$('#resultatAjoutArticle').addClass('has-success');
+							event.target.reset();
+						} else {
+							console.log('update');
+						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						var res = JSON.parse(jqXHR.responseText)['message'];
@@ -294,7 +311,7 @@
 			$('#app').on('reset', 'form#ajoutArticle', function(event) {
 				event.target.reset();
 				$('.list-image').empty();
-				$('#app').find('#ajouterImage').addFileToForm({}, 'index', 0);
+				$('#app').find('#ajouterImage').addFileToForm('index', 0);
 			}.bind(this));
 		},
 		renderHome: function() {
@@ -321,6 +338,14 @@
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
+
+					$.each(self.cadeaux, function(index, item) {
+						$.get('/web/lienEdit.php', {id: item.id}, function(data) {
+							var lien = $('#article-'+item.id).find('.caption h2');
+							var titre = lien.text();
+							lien.html('<a href="' + data + '">' + titre + '</a>');
+						});
+					});
 				}, function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR, textStatus, errorThrown);
 				});
@@ -340,14 +365,30 @@
 			}
 		},
 		renderFormArticle: function(id) {
+			var self = this;
 			if (id && id !== undefined && id != null) {
-				//appel ajax pour récupérer les données chargées ... ou pas il suffit de récupérer l'item dans la liste ...
-				$('#app').html(this.ajoutArticleTemplate());
+				$.ajax({
+					url: "/web/services/RestController.php", 
+					data: {
+						model: 'articles',
+						action: 'get',
+						id: id
+					},
+					method: 'GET',
+					success : function(data) {
+						$('#app').html(self.ajoutArticleTemplate(data));
+						$('#app').find('.compteur').compteur({idUser: self.user['user']['id'], isEditMode: true});
+						$('#app').find('#ajouterImage').addFileToForm(data);
+					}, 
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log(jqXHR, textStatus, errorThrown);
+					}
+				});
 			} else {
-				$('#app').html(this.ajoutArticleTemplate());
+				$('#app').html(this.ajoutArticleTemplate({quantiteSouhaitee: 0, creation: true}));
+				$('#app').find('.compteur').compteur({idUser: this.user['user']['id'], isEditMode: true});
+				$('#app').find('#ajouterImage').addFileToForm();
 			}
-			$('#app').find('.compteur').compteur({idUser: this.user['user']['id'], isEditMode: true});
-			$('#app').find('#ajouterImage').addFileToForm();
 		},
 		renderEnregistrement: function () {
 			$('#app').html(this.enregistrementTemplate());

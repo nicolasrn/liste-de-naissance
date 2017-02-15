@@ -1,8 +1,8 @@
 ;(function($) {
 	'use-strict';
 
-	$.fn.addFileToForm = function (options, cle, value) {
-		if (cle === undefined && value === undefined) {
+	$.fn.addFileToForm = function (options, value) {
+		if (value === undefined) {
 			var defauts = {
 				itemForAppend: $(this).parents('form').find('.list-image'),
 				model: `<div class="form-group">
@@ -11,24 +11,45 @@
 								<input type="file" name="image-{{0}}" id="image-{{0}}">
 							</div>
 						</div>`
-			}; 
-
+			};
 			defauts = $.extend(defauts, options); 
 
 			return $(this).each(function(index, element) {
 				var btnAjoutFichier = $(this);
 				btnAjoutFichier.data('index', 0);
 
-				btnAjoutFichier.on('click', function (event) {
+				btnAjoutFichier.on('click', function (event, item) {
 					var index = btnAjoutFichier.data('index');
 					var template = defauts['model'].replace(/\{\{0\}\}/g, ++index).replace(/\{\{1\}\}/g, index + 1);
 					btnAjoutFichier.data('index', index);
-					$(defauts['itemForAppend']).append($(template));
+					var elemToInsert = $(template);
+					if (item && item !== undefined && item !== null) {
+						elemToInsert.find('input').val(item);
+					}
+					$(defauts['itemForAppend']).append(elemToInsert);
 				});
+				
+				if (defauts['img'] && defauts['img'] !== undefined) {
+					var imgToDelete = btnAjoutFichier.parents('form').find('input[name=toDelete]');
+
+					var listeImg = $.map(defauts.img, function(val, key) {
+						return '<li data-id="' + val.id + '">' + val.src + '<button type="button" class="glyphicon glyphicon-remove"></button></li>';
+					});
+					$('<ul>' + listeImg.join('') + '</ul>').insertBefore(btnAjoutFichier);
+					btnAjoutFichier.parent().find('.glyphicon.glyphicon-remove').each(function(index, item) {
+						$(item).on('click', function(event) {
+							var toDelete = $(this).parent().attr('data-id');
+							if (imgToDelete.val().indexOf(toDelete) < 0) {
+								imgToDelete.val((imgToDelete.val() == "" ? imgToDelete.val() : imgToDelete.val() + ";") + toDelete);
+							}
+							$(this).parent().remove();
+						});
+					});
+				}
 			});
 		} else {
 			return $(this).each(function(index, element) {
-				$(this).data(cle, value);
+				$(this).data(options, value);
 			});
 		}
 	};
