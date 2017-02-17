@@ -5,10 +5,10 @@
 		$userAdmin = array('dev', 'nicopapa', 'laurencemaman');
 
 		if (in_array($user->user->login, $userAdmin)) {
-			echo '#/liste-de-naissance/edit/' . $_GET['id'];
-
 			header("HTTP/1.1 200 OK");
 			header("Content-Type: text/html");
+			
+			echo '#/liste-de-naissance/edit/' . $_GET['id'];
 			exit;
 		}
 	}

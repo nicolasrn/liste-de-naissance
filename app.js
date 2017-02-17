@@ -392,7 +392,6 @@
 		},
 		renderEnregistrement: function () {
 			$('#app').html(this.enregistrementTemplate());
-			$('#navbar').empty();
 		},
 		renderLogin: function (options) {
 			$('#navbar-content').html(this.formLoginTemplate(options));
