@@ -13,7 +13,7 @@
 		<link rel="stylesheet" href="/app.css">
 	</head>
 	<body>
-		<nav class="navbar navbar-inverse navbar-fixed-top">
+		<nav class="navbar navbar-inverse">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -22,7 +22,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#">liste de naissance pour bébé</a>
+					<a class="navbar-brand" href="#/liste-de-naissance">liste de naissance pour bébé</a>
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<div id="menuAdmin">
@@ -31,17 +31,6 @@
 						<script id="login-template" type="text/x-handlebars-template">
 							{{#if login}}
 								<h1 class="navbar-right navbar-brand nomargin bienvenue">Bonjour, {{login}} <br/> <small><a href="#/deconnexion">se déconnecter</a></small></h1>
-							{{else}}
-								<form method="POST" id="form-authentification" class="navbar-form navbar-right">
-									<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
-										<input type="text" placeholder="login" id="login" name="login" class="form-control">
-									</div>
-									<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
-										<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control">
-									</div>
-									<button type="submit" class="btn btn-success">Se connecter</button>
-									<a class="btn btn-default" href="#/enregistrement" role="button">S'enregistrer</a>
-								</form>
 							{{/if}}
 						</script>
 					</div>
@@ -50,18 +39,32 @@
 		</nav>
 		
 		<!-- main body of our application -->
-		<div id="app">
+		<div class="container" id="app">
 			<script id="app-template" type="text/x-handlebars-template">
 				<div class="jumbotron">
-					<div class="container">
-						<h1>Pour bébé</h1>
+					<h1>Pour bébé</h1>
+					<div class="leight">
 						<p>
-							Voici quelques cadeaux que nous souhaiterions pour le bébé, si vous avez d'autres idées, contactez-nous ou faites nous en la surprise ;)
+							Vous nous demandez souvent ce qui nous ferait plaisir ou ce dont nous aurions besoin ... avec ce site, vous êtes sûrs de transformer l’essai ;-)
+						</p>
+						<p>
+							Nous sommes déjà bien équipés en poussette trio, transat, parc, baby cook, écharpe de portage, lit à barreaux, linge premier mois, ... (évitons les surplus et les doublons)
+						</p>
+						<p>
+							En plus de la liste, que vous trouverez ci-après, nous aimerions beaucoup pouvoir réaliser une séance photo avec bébé afin de garder de beaux souvenirs de ses premiers jours.
+							Si vous le souhaitez, vous pouvez participer financièrement à cette séance photo ainsi qu'à l'achat de sièges auto et autres dépences
+						</p>
+						<p>
+							Pensez à bien indiquer les éléments que vous voulez nous offrir afin d’éviter les surplus et les doublons.
+						</p>
+						<p>
+							Merci d’avance pour vos délicates attentions. <br>
+							Laurence, Nicolas et mini-nous
 						</p>
 					</div>
 				</div>
-
-				<div class="container-fluid">
+				
+				<div id="liste-de-naissance">
 					{{#each cadeaux}}
 					{{#ifmod @index @root.nbColonneAffichees 0 0}}
 					<div class="row">
@@ -103,11 +106,14 @@
 									<div class="compteur" id="compteur-{{this.id}}">
 										<div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
 										<div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotal}}</span> réserve(s)</div>
-										<div class="input-group col-sm-12 col-md-12">
-											<input type="text" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
-											<div class="input-group-btn">
-												<button type="button" class="btn btn-default moins">-</button>
-												<button type="button" class="btn btn-default plus">+</button>
+										<div class="form-groupe">
+											<label for="quantiteReserveeUtilisateur-{{this.id}}" class="control-label">j'en réserve</label>
+											<div class="input-group col-sm-12 col-md-12">
+												<input type="text" id="quantiteReserveeUtilisateur-{{this.id}}" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
+												<div class="input-group-btn">
+													<button type="button" class="btn btn-default moins">-</button>
+													<button type="button" class="btn btn-default plus">+</button>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -128,87 +134,105 @@
 					<div class="container">
 						<h1>Bonjour</h1>
 						<p>
-							Pour accéder à la liste de naissance, merci de vous authentifier
+							Pour accéder à la liste de naissance de Nico et Laurence, merci de vous authentifier
 						</p>
 					</div>
+				</div>
+				<div class="col-md-offset-3 col-md-6">
+					<form method="POST" id="form-authentification" class="form-horizontal">
+						<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+							<label for="login" class="col-md-3 control-label">Login</label>
+							<div class="col-md-9">
+								<input type="text" placeholder="login" id="login" name="login" class="form-control">
+							</div>
+						</div>
+						<div class="form-group {{#if erreurAuthentification}}has-error{{/if}}">
+							<label for="mdp" class="col-md-3 control-label">Mot de passe</label>
+							<div class="col-md-9">
+								<input type="password" placeholder="Mot de passe" id="mdp" name="password" class="form-control">
+							</div>
+						</div>
+						<div class="col-md-offset-3 col-md-9">
+							<button type="submit" class="btn btn-success">Se connecter</button>
+							<a class="btn btn-default" href="#/enregistrement" role="button">S'enregistrer</a>
+						</div>
+					</form>
 				</div>
 			</script>
 
 			<script id="enregistrement-template" type="text/x-handlebars-template">
 				<div class="jumbotron">
-					<div class="container">
-						<form class="form-horizontal" id="enregistrement">
-							<div class="form-group">
-								<label for="login" class="col-sm-4 control-label">Login</label>
-								<div class="col-sm-8">
-									<input type="text" name="login" class="form-control" id="login" placeholder="Login">
-									<span class="help-block"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="password" class="col-sm-4 control-label">mot de passe</label>
-								<div class="col-sm-8">
-									<input type="password" name="password" class="form-control" id="password" placeholder="mot de passe">
-									<span class="help-block"></span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="password2" class="col-sm-4 control-label">confirmer le mot de passe</label>
-								<div class="col-sm-8">
-									<input type="password" name="password2" class="form-control" id="password2" placeholder="confirmer le mot de passe">
-									<span class="help-block"></span>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<div class="col-sm-offset-4 col-sm-8">
-									<button type="submit" class="btn btn-default">S'enregistrer</button>
-								</div>
-							</div>
-						</form>
-					</div>
+					<h1>Formulaire d'inscription</h1>
 				</div>
+				<form class="form-horizontal" id="enregistrement">
+					<div class="form-group">
+						<label for="login" class="col-sm-4 control-label">Login</label>
+						<div class="col-sm-8">
+							<input type="text" name="login" class="form-control" id="login" placeholder="Login">
+							<span class="help-block"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="password" class="col-sm-4 control-label">mot de passe</label>
+						<div class="col-sm-8">
+							<input type="password" name="password" class="form-control" id="password" placeholder="mot de passe">
+							<span class="help-block"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="password2" class="col-sm-4 control-label">confirmer le mot de passe</label>
+						<div class="col-sm-8">
+							<input type="password" name="password2" class="form-control" id="password2" placeholder="confirmer le mot de passe">
+							<span class="help-block"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-4 col-sm-8">
+							<button type="submit" class="btn btn-default">S'enregistrer</button>
+						</div>
+					</div>
+				</form>
 			</script>
 
 			<script id="ajoutArticle-template" type="text/x-handlebars-template">
 				<div class="jumbotron">
-					<div class="container">
-						<form class="form-horizontal" action="/web/services/RestController.php" method="POST" enctype="multipart/form-data" id="ajoutArticle">
-							<div class="form-group" id="resultatAjoutArticle">
-								<span class="help-block"></span>
-							</div>
-							<div class="form-group">
-								<label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" name="libelle" value="{{this.libelle}}" id="libelleArticle" placeholder="Libellé de l'article">
-								</div>
-							</div>
-							<div class="form-group compteur" id="compteur-nouvelArticle">
-								<label for="quantiteSouhaitee" class="col-sm-2 control-label">Quantite Souhaitée</label>
-								<div class="col-sm-9">
-									<input type="text" class="form-control" name="quantiteSouhaitee" value="{{this.quantiteSouhaitee}}" id="quantiteSouhaitee" value="0" readonly/>
-								</div>
-								<div class="input-group-btn col-sm-12 col-md-12">
-									<button type="button" class="btn btn-default moins">-</button>
-									<button type="button" class="btn btn-default plus">+</button>
-								</div>
-							</div>
-							<div class="list-image">
-							</div>
-							<div class="form-group">
-								<div class="col-sm-offset-2 col-sm-10">
-									<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
-									<button type="submit" class="btn btn-danger">Enregistrer l'article</button>
-									<button type="reset" class="btn btn-warning">vider</button>
-								</div>
-							</div>
-							<input type="hidden" name="model" value="articles"/>
-							<input type="hidden" name="action" value="{{#if creation}}addArticle{{else}}updateArticle{{/if}}"/>
-							<input type="hidden" name="idArticle" value="{{id}}"/>
-							<input type="hidden" name="toDelete" value=""/>
-						</form>
-					</div>
+					<h1>Ajout/modification d'aricle</h1>
 				</div>
+				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" enctype="multipart/form-data" id="ajoutArticle">
+					<div class="form-group" id="resultatAjoutArticle">
+						<span class="help-block"></span>
+					</div>
+					<div class="form-group">
+						<label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" name="libelle" value="{{this.libelle}}" id="libelleArticle" placeholder="Libellé de l'article">
+						</div>
+					</div>
+					<div class="form-group compteur" id="compteur-nouvelArticle">
+						<label for="quantiteSouhaitee" class="col-sm-2 control-label">Quantite Souhaitée</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" name="quantiteSouhaitee" value="{{this.quantiteSouhaitee}}" id="quantiteSouhaitee" value="0" readonly/>
+						</div>
+						<div class="input-group-btn col-sm-12 col-md-12">
+							<button type="button" class="btn btn-default moins">-</button>
+							<button type="button" class="btn btn-default plus">+</button>
+						</div>
+					</div>
+					<div class="list-image">
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
+							<button type="submit" class="btn btn-danger">Enregistrer l'article</button>
+							<button type="reset" class="btn btn-warning">vider</button>
+						</div>
+					</div>
+					<input type="hidden" name="model" value="articles"/>
+					<input type="hidden" name="action" value="{{#if creation}}addArticle{{else}}updateArticle{{/if}}"/>
+					<input type="hidden" name="idArticle" value="{{id}}"/>
+					<input type="hidden" name="toDelete" value=""/>
+				</form>
 			</script>
 		</div>
 

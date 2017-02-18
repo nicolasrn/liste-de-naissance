@@ -305,7 +305,7 @@
 			}
 		},
 		bindEvents: function () {
-			$('#navbar').on('submit', 'form#form-authentification', this.authentificate.bind(this));
+			$('#app').on('submit', 'form#form-authentification', this.authentificate.bind(this));
 			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
 			$('#app').on('submit', 'form#ajoutArticle', this.ajoutArticle.bind(this));
 			$('#app').on('reset', 'form#ajoutArticle', function(event) {
