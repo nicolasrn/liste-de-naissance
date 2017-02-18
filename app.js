@@ -334,7 +334,7 @@
 					$('#app').html(self.listeNaissanceTemplate({
 						cadeaux: self.cadeaux,
 						nbColonneMax: 12,
-						nbColonneAffichees:4
+						nbColonneAffichees:3
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
