@@ -5,12 +5,12 @@
 		if (value === undefined) {
 			var defauts = {
 				itemForAppend: $(this).parents('form').find('.list-image'),
-				model: `<div class="form-group">
-							<label for="image-{{0}}" class="col-sm-2 control-label">Image {{0}}</label>
-							<div class="col-sm-10">
-								<input type="file" name="image-{{0}}" id="image-{{0}}">
-							</div>
-						</div>`
+				model: '<div class="form-group">' + 
+							'<label for="image-{{0}}" class="col-sm-2 control-label">Image {{0}}</label>' +
+							'<div class="col-sm-10">' +
+								'<input type="file" name="image-{{0}}" id="image-{{0}}">' +
+							'</div>' +
+						'</div>'
 			};
 			defauts = $.extend(defauts, options); 
 
