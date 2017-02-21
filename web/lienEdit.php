@@ -1,18 +1,17 @@
 <?php
 	//var_dump($_COOKIE);
-	if (isset($_COOKIE['ldn-user'])) {
-		$user = json_decode($_COOKIE['ldn-user']);
-		$userAdmin = array('dev', 'nicopapa', 'laurencemaman');
-
-		if (in_array($user->user->login, $userAdmin)) {
-			header("HTTP/1.1 200 OK");
-			header("Content-Type: text/html");
+	function getLienEdition($id, $libelle) {
+		if (isset($_COOKIE['ldn-user'])) {
+			$user = json_decode($_COOKIE['ldn-user']);
+			$userAdmin = array('dev', 'nicopapa', 'laurencemaman');
 			
-			echo '#/liste-de-naissance/edit/' . $_GET['id'];
-			exit;
+			if (in_array($user->user->login, $userAdmin)) {
+				$lien = '#/liste-de-naissance/edit/' . $id;
+				return "<a href='" . $lien . "'>" . $libelle . "</a>";
+			} else {
+				return $libelle;
+			}
 		}
+		return null;
 	}
-
-	header("HTTP/1.1 401 Unauthorized");
-	header("Content-Type: text/html");
 ?>

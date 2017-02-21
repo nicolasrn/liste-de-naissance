@@ -1,4 +1,5 @@
 .htaccess
 web/services/ConfigurationBDD.php
 web/menuAdmin.php
+web/menuEdit.php
 node_modules/

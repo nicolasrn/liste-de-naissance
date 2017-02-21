@@ -339,13 +339,6 @@
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
 
-					$.each(self.cadeaux, function(index, item) {
-						$.get('/web/lienEdit.php', {id: item.id}, function(data) {
-							var lien = $('#article-'+item.id).find('.caption h2');
-							var titre = lien.text();
-							lien.html('<a href="' + data + '">' + titre + '</a>');
-						});
-					});
 				}, function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR, textStatus, errorThrown);
 				});

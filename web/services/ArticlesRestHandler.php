@@ -1,5 +1,6 @@
 <?php
 	require_once("SimpleRest.php");
+	require_once("../lienEdit.php");
 			
 	class ArticlesRestHandler extends SimpleRest {
 		private $reqArticles;
@@ -76,7 +77,7 @@
 			while($donnees = $this->reqArticles->fetch()) {
 				$resultats[$index++] = array (
 					'id' => $donnees['id'],
-					'libelle' => $donnees['libelle'],
+					'libelle' => getLienEdition($donnees['id'], $donnees['libelle']),
 					'quantiteSouhaitee' => $donnees['quantiteSouhaitee'],
 					'quantiteReserveeTotal' => $donnees['quantiteReserveeTotale'],
 					'quantiteReserveeUtilisateur' => $this->getQuantiteReserveeUtilisateur($donnees['id'], $get['idUser']),
