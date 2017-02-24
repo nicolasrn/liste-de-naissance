@@ -7,6 +7,17 @@ h1.bienvenue {
 	padding-top: 8px;
 }
 
+div.parentFeedBack {
+	min-height: 35px;
+	text-align: center;
+}
+
+.compteur .form-horizontal,
+div.parentFeedBack {
+	margin-top: 15px;
+	margin-top: 15px;
+}
+
 .nomargin {
 	margin: 0;	
 } 

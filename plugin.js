@@ -66,8 +66,10 @@
 					'idArticle': data.idArticle,
 					'newValue': data.newValue
 				},
-				success : function(data) {
-					console.log(data);
+				success : function(response) {
+					data.feedBack.text(data.feedBack.attr('data-value'));
+					data.feedBack.show();
+					data.feedBack.fadeOut(1500);
 				}, 
 				error: function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR, textStatus, errorThrown);
@@ -87,6 +89,8 @@
 			var jInput = jElement.find('input[type="text"]');
 			var jQteReservee = jElement.find('.quantiteReservee');
 			var idArticle = jElement.attr('id').replace('compteur-', '');
+			var jFeedBack = jElement.find('.feedBack'); 
+
 			var qteSouhaitee = parseInt(jElement.find('.quantiteSouhaitee').text());
 			var qteReserveeInitial = parseInt(jQteReservee.text());
 			var qteReservee = qteReserveeInitial;
@@ -101,11 +105,12 @@
 				if (isMaxDepasse) {
 					--qteUtilisateur;
 					--qteReservee;
+					return;
 				}
 				event.data.inputCompteur.val(qteUtilisateur);
 				event.data.labelQteReserve.text(qteReservee);
 				if (defauts['isEditMode'] === false) { 
-					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser'], feedBack: jFeedBack});
 				}
 			});
 			var jButtonMoins = jElement.find('button.moins').on('click', {labelQteReserve: jQteReservee, inputCompteur: jInput, min: qteMin}, function(event) {
@@ -115,12 +120,13 @@
 				if (isMinDepasse) {
 					qteUtilisateur = event.data.min;
 					++qteReservee;
+					return;
 				}
 				event.data.inputCompteur.val(qteUtilisateur);
 				event.data.labelQteReserve.text(qteReservee);
 
 				if (defauts['isEditMode'] === false) { 
-					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser']});
+					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser'], feedBack: jFeedBack});
 				}
 			});
 

@@ -58,7 +58,7 @@
 							Pensez à bien indiquer les éléments que vous voulez nous offrir afin d’éviter les surplus et les doublons.
 						</p>
 						<p>
-							Si vous avez des questions, n'hésitez pas à nous contacter ;-) 							
+							Si vous avez des questions, n'hésitez pas à nous contacter ;-)					
 						</p>
 						<p>
 							Merci d’avance pour vos délicates attentions. <br>
@@ -109,13 +109,18 @@
 									<div class="compteur" id="compteur-{{this.id}}">
 										<div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
 										<div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotal}}</span> réserve(s)</div>
-										<div class="form-groupe">
-											<label for="quantiteReserveeUtilisateur-{{this.id}}" class="control-label">j'en réserve</label>
-											<div class="input-group col-sm-12 col-md-12">
-												<input type="text" id="quantiteReserveeUtilisateur-{{this.id}}" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
-												<div class="input-group-btn">
-													<button type="button" class="btn btn-default moins">-</button>
-													<button type="button" class="btn btn-default plus">+</button>
+										<div class="form-horizontal">
+											<div class="form-group">
+												<label for="quantiteReserveeUtilisateur-{{this.id}}" class="control-label col-md-4">j'en réserve</label>
+												<div class="input-group col-md-7">
+													<input type="text" id="quantiteReserveeUtilisateur-{{this.id}}" name="{{this.id}}" class="form-control" value="{{this.quantiteReserveeUtilisateur}}" readonly/>
+													<div class="input-group-btn">
+														<button type="button" class="btn btn-default moins">-</button>
+														<button type="button" class="btn btn-default plus">+</button>
+													</div>
+												</div>
+												<div class="col-md-offset-1 input-group parentFeedBack col-md-10">
+													<p class="bg-info feedBack" data-value="modification prise en compte"></p>
 												</div>
 											</div>
 										</div>
@@ -200,7 +205,7 @@
 
 			<script id="ajoutArticle-template" type="text/x-handlebars-template">
 				<div class="jumbotron">
-					<h1>Ajout/modification d'aricle</h1>
+					<h1>Ajout/modification d'article</h1>
 				</div>
 				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" enctype="multipart/form-data" id="ajoutArticle">
 					<div class="form-group" id="resultatAjoutArticle">
