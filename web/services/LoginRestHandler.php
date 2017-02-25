@@ -9,12 +9,21 @@
 			$this->reqAuthentification = $this->bdd->prepare('select * from TPersonne where login = :login and password = :password');
 			$this->reqAjoutUtilisateur = $this->bdd->prepare('insert into TPersonne (login, password) values(:login, :password)');
 			$this->reqSelectPourAjoutUtilisateur = $this->bdd->prepare('select * from TPersonne where login = :login');
+			$this->reqAllPersonne = $this->bdd->prepare('select id, login from TPersonne  where id >= 10');
 		}
 
 		public function handleGet($get) {
 			//var_dump($get);
 			$reponse = null;
-			$this->setHttpHeaders('application/json', 500);
+			$code = 500;
+			if (isset($get['action'])) {
+				$code = 200;
+				if ($get['action'] == 'personnes') {
+					$reponse = $this->getAllPersonne();
+					$reponse = json_encode($reponse);
+				}
+			}
+			$this->setHttpHeaders('application/json', $code);
 			return $reponse;
 		}
 
@@ -28,6 +37,19 @@
 				$reponse = $this->authentification($post["login"], $post["password"]);
 				$this->setHttpHeaders('application/json', $reponse['code']);
 				$reponse = json_encode($reponse['message'], JSON_FORCE_OBJECT);
+			}
+			return $reponse;
+		}
+
+		private function getAllPersonne() {
+			$this->reqAllPersonne->execute();
+
+			$reponse = array();
+			while ($donnees = $this->reqAllPersonne->fetch()) {
+				array_push($reponse, array (
+					'id' => $donnees['id'],
+					'login' => $donnees['login']
+				));
 			}
 			return $reponse;
 		}
