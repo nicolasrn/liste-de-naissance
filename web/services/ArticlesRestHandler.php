@@ -20,21 +20,26 @@
 			parent::__construct($action);
 			$this->siteRoot = realpath(dirname(__FILE__)) . '/../..';
 			$this->reqArticles = $this->bdd->prepare(
-				'(
+				'
+				select * 
+				from (
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) > COALESCE(sum(r.quantiteReservee), 0)
-					order by libelle
-				) union (
+					order by lower(a.libelle) asc
+				) a union 
+				select * 
+				from (
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) = COALESCE(sum(r.quantiteReservee), 0)
-					order by libelle
-				)'
+					order by lower(a.libelle) asc
+				) b
+				'
 			);
 			$this->reqArticleParUtilisateur = $this->bdd->prepare('select prc.quantiteReservee from TPersonne p join PersonneReserveCadeau prc on p.id = prc.idPersonne and prc.idArticle = :idArticle where p.id = :idPersonne');
 			$this->reqArticle = $this->bdd->prepare('select id, libelle, quantiteSouhaitee from TArticle a where a.id = :idArticle');
