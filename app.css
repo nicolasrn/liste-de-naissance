@@ -7,6 +7,10 @@ h1.bienvenue {
 	padding-top: 8px;
 }
 
+table.table tr th::first-letter {
+	text-transform: uppercase;
+}
+
 div.parentFeedBack {
 	min-height: 35px;
 	text-align: center;
@@ -24,6 +28,10 @@ div.parentFeedBack {
 
 .jumbotron .leight p {
 	font-size: initial;
+}
+
+.caption h2::first-letter {
+	text-transform: uppercase;
 }
 
 .carousel img {

@@ -107,6 +107,7 @@
 			this.listeNaissanceTemplate = Handlebars.compile($('#app-template').html());
 			this.enregistrementTemplate = Handlebars.compile($('#enregistrement-template').html());
 			this.ajoutArticleTemplate = Handlebars.compile($('#ajoutArticle-template').html());
+			this.detailReservationArticleListeDeNaissance = Handlebars.compile($('#detailReservation').html());
 			this.bindEvents();
 
 			var self = this;
@@ -123,6 +124,9 @@
 				}.bind(this),
 				'/liste-de-naissance/edit': function() {
 					self.renderEdit(null);
+				}.bind(this),
+				'/liste-de-naissance/detail': function() {
+					self.renderDetailReservationArticleListeDeNaissance();
 				}.bind(this),
 				'/enregistrement': function() {
 					self.renderEnregistrement();
@@ -338,12 +342,33 @@
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
-
 				}, function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR, textStatus, errorThrown);
 				});
 			} else {
 				self.router.setRoute('/');
+			}
+		},
+		renderDetailReservationArticleListeDeNaissance: function() {
+			var self = this;
+			if (this.isLogged()) {
+				this.renderLogin({
+					login: self.user['user']['login']
+				});
+				$.ajax("/web/services/RestController.php", {
+					data: {
+						model: 'articles',
+						action: 'articleReserve'
+					},
+					method: 'GET'
+				}).success(function(data) {
+					$('#app').html(self.detailReservationArticleListeDeNaissance(data));
+					$('table.table').DataTable();
+				}).error(function(jqXHR, textStatus, errorThrown) {
+					console.log(arguments);
+				});
+			} else {
+				this.router.setRoute('/');
 			}
 		},
 		renderEdit: function(id) {

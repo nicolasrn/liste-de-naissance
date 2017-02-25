@@ -13,16 +13,41 @@
 		private $reqInsertArticle;
 		private $reqInsertImages;
 		private $reqUpdateArticle;
+		private $reqArticleReserve;
 		private $siteRoot;
 
 		public function __construct($action) {
 			parent::__construct($action);
 			$this->siteRoot = realpath(dirname(__FILE__)) . '/../..';
-
-			$this->reqArticles = $this->bdd->prepare('select id, libelle, COALESCE(quantiteSouhaitee, 0) as quantiteSouhaitee, COALESCE(sum(quantiteReservee), 0) as quantiteReserveeTotale from TArticle a left join PersonneReserveCadeau prc on prc.idArticle = a.id group by a.id, a.libelle, a.quantiteSouhaitee');
+			$this->reqArticles = $this->bdd->prepare(
+				'(
+					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
+					FROM TArticle a
+					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
+					group by a.id, libelle, quantiteSouhaitee
+					having COALESCE(a.quantiteSouhaitee, 0) > COALESCE(sum(r.quantiteReservee), 0)
+					order by libelle
+				) union (
+					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
+					FROM TArticle a
+					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
+					group by a.id, libelle, quantiteSouhaitee
+					having COALESCE(a.quantiteSouhaitee, 0) = COALESCE(sum(r.quantiteReservee), 0)
+					order by libelle
+				)'
+			);
 			$this->reqArticleParUtilisateur = $this->bdd->prepare('select prc.quantiteReservee from TPersonne p join PersonneReserveCadeau prc on p.id = prc.idPersonne and prc.idArticle = :idArticle where p.id = :idPersonne');
 			$this->reqArticle = $this->bdd->prepare('select id, libelle, quantiteSouhaitee from TArticle a where a.id = :idArticle');
 			$this->reqImage = $this->bdd->prepare('select id, src from TImage where idArticle = :idArticle');
+			$this->reqArticleReserve = $this->bdd->prepare(
+				'
+				SELECT a.libelle, r.quantiteReservee, p.login
+				FROM TArticle a
+				join PersonneReserveCadeau r on a.id = r.idArticle and r.quantiteReservee > 0
+				join TPersonne p on p.id = r.idPersonne
+				order by p.login, r.quantiteReservee
+				'
+			);
 
 			$this->reqSelectForUpdate = $this->bdd->prepare('select * from PersonneReserveCadeau where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqUpdate = $this->bdd->prepare('update PersonneReserveCadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
@@ -41,8 +66,13 @@
 			if (isset($get['action'])) {
 				if ($get['action'] == 'getAll') {
 					$reponse = $this->getAll($get);
+					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
 				} else if ($get['action'] == 'get') {
 					$reponse = $this->get($get);
+					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
+				} else if ($get['action'] == 'articleReserve') {
+					$reponse = $this->getArticleReserve($get);
+					$reponse = json_encode($reponse);
 				} else {
 					$code = 500;
 				}
@@ -51,7 +81,7 @@
 			}
 
 			$this->setHttpHeaders('application/json', $code);
-			return json_encode($reponse, JSON_FORCE_OBJECT);
+			return $reponse;
 		}
 
 		private function get($get) {
@@ -85,6 +115,20 @@
 				);
 			}
 			return $resultats;
+		}
+
+		private function getArticleReserve ($get) {
+			$this->reqArticleReserve->execute();
+
+			$resultat = array();
+			while($donnees = $this->reqArticleReserve->fetch()) {
+				array_push($resultat, array (
+					'article' => $donnees['libelle'],
+					'quantiteReservee' => $donnees['quantiteReservee'],
+					'login' => $donnees['login']
+				));
+			}
+			return $resultat;
 		}
 
 		private function getImages($id) {
