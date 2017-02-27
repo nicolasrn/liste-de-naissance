@@ -53,14 +53,12 @@
 				order by p.login, r.quantiteReservee
 				'
 			);
-
 			$this->reqSelectForUpdate = $this->bdd->prepare('select * from PersonneReserveCadeau where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqUpdate = $this->bdd->prepare('update PersonneReserveCadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqInsert = $this->bdd->prepare('insert into PersonneReserveCadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
 			$this->reqInsertArticle = $this->bdd->prepare('insert into TArticle (libelle, quantiteSouhaitee) values (:libelle, :quantiteSouhaitee)');
 			$this->reqInsertImages = $this->bdd->prepare('insert into TImage (src, idArticle) values (:src, :idArticle)');
-
-			$this->reqUpdateArticle = $this->bdd->prepare('update TArticle set quantiteSouhaitee = :quantiteSouhaitee where id = :id');
+			$this->reqUpdateArticle = $this->bdd->prepare('update TArticle set quantiteSouhaitee = :quantiteSouhaitee, libelle = :libelle where id = :id');
 			$this->reqDeleteImage = $this->bdd->prepare('delete from TImage where id = :id');
 		}
 
@@ -84,14 +82,12 @@
 			} else {
 				$code = 500;
 			}
-
 			$this->setHttpHeaders('application/json', $code);
 			return $reponse;
 		}
 
 		private function get($get) {
 			$this->reqArticle->execute(array('idArticle' => $get['id']));
-
 			$resultat = null;
 			while($donnees = $this->reqArticle->fetch()) {
 				$resultat = array (
@@ -106,7 +102,6 @@
 
 		private function getAll($get) {
 			$this->reqArticles->execute();
-
 			$resultats = array();
 			$index = 0;
 			while($donnees = $this->reqArticles->fetch()) {
@@ -124,7 +119,6 @@
 
 		private function getArticleReserve ($get) {
 			$this->reqArticleReserve->execute();
-
 			$resultat = array();
 			while($donnees = $this->reqArticleReserve->fetch()) {
 				array_push($resultat, array (
@@ -184,7 +178,6 @@
 				$idUser = $post['idUser'];
 				$idArticle = $post['idArticle'];
 				$newValue = $post['newValue'];
-
 				if ($this->isUtilisateurADejaReserve($idUser, $idArticle)) {
 					$res = $this->reqUpdate->execute(array(
 						'idArticle' => $idArticle,
@@ -229,7 +222,11 @@
 					foreach ($aSupprimer as $key => $value) {
 						$res = $this->reqDeleteImage->execute(array('id' => $value));
 					}
-					$res = $this->reqUpdateArticle->execute(array('quantiteSouhaitee' => $post['quantiteSouhaitee'], 'id' => $idArticle));
+					$res = $this->reqUpdateArticle->execute(array(
+						'quantiteSouhaitee' => $post['quantiteSouhaitee'], 
+						'id' => $idArticle,
+						'libelle' => $post['libelle']
+					));
 				} 
 				$resImages = $this->enregristrerImage($resImages, $idArticle);
 			}
@@ -255,10 +252,8 @@
 			$paths = array();
 			$isSuccess = count($images);
 			$nbImageUploade = 0;
-
 			foreach ($file as $fileId => $fileData) {
 				$fileName = $_FILES[$fileId]["name"];
-
 				if (!empty($fileName)) {
 					$nbImageUploade++;
 					$target_file = $target_dir . basename($fileName);
@@ -271,7 +266,6 @@
 						$isSuccess = false;
 						$message[] = "$fileName - n'est pas une image";
 					}
-					// Check if $uploadOk is set to 0 by an error
 					if ($uploadOk) {
 						if (move_uploaded_file($_FILES[$fileId]["tmp_name"], $target_file)) {
 							$message[] = "$fileName - à bien été téléchargé";
@@ -280,7 +274,6 @@
 					}
 				}
 			}
-
 			$res = array('message' => $message, 'paths' => $paths, 'isSuccess' => (($isSuccess + $nbImageUploade) > 0), 'idArticle' => $post['idArticle']);
 			return $res; 
 		}

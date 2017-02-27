@@ -9,7 +9,8 @@
 			$this->reqAuthentification = $this->bdd->prepare('select * from TPersonne where login = :login and password = :password');
 			$this->reqAjoutUtilisateur = $this->bdd->prepare('insert into TPersonne (login, password) values(:login, :password)');
 			$this->reqSelectPourAjoutUtilisateur = $this->bdd->prepare('select * from TPersonne where login = :login');
-			$this->reqAllPersonne = $this->bdd->prepare('select id, login from TPersonne  where id >= 10');
+			$this->reqAllPersonne = $this->bdd->prepare('select id, login from TPersonne where isAdmin = 0');
+			$this->reqUtilisateurCourantAsAdmin = $this->bdd->prepare('select count(id) as total from TPersonne where isAdmin = 1 and id = :id');
 		}
 
 		public function handleGet($get) {
@@ -20,6 +21,13 @@
 				$code = 200;
 				if ($get['action'] == 'personnes') {
 					$reponse = $this->getAllPersonne();
+					$reponse = json_encode($reponse);
+				} else if ($get['action'] == 'recupererDroitAdmin') {
+					$reponse = $this->getUtilisateurCourantAsAdmin($_COOKIE);
+					if (!$reponse) {
+						$code = 401;
+						$reponse = null;
+					} 
 					$reponse = json_encode($reponse);
 				}
 			}
@@ -35,6 +43,7 @@
 				$reponse = $reponse['message'];
 			} else {
 				$reponse = $this->authentification($post["login"], $post["password"]);
+				$_COOKIE['ldn-user'] = $reponse;
 				$this->setHttpHeaders('application/json', $reponse['code']);
 				$reponse = json_encode($reponse['message'], JSON_FORCE_OBJECT);
 			}
@@ -52,6 +61,19 @@
 				));
 			}
 			return $reponse;
+		}
+
+		public function getUtilisateurCourantAsAdmin($cookie) {
+			if (isset($cookie['ldn-user'])) {
+				$user = json_decode($cookie['ldn-user']);
+				$this->reqUtilisateurCourantAsAdmin->execute(array(
+					'id' => $user->user->id
+				));
+				$donnees = $this->reqUtilisateurCourantAsAdmin->fetch();
+				return $donnees['total'] == '1';
+			} else {
+				return false;
+			}
 		}
 
 		private function enregistrement($login, $password, $password2) {

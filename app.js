@@ -108,6 +108,7 @@
 			this.enregistrementTemplate = Handlebars.compile($('#enregistrement-template').html());
 			this.ajoutArticleTemplate = Handlebars.compile($('#ajoutArticle-template').html());
 			this.detailReservationArticleListeDeNaissance = Handlebars.compile($('#detailReservation').html());
+			this.detailPersonnes = Handlebars.compile($('#detailPersonnes').html());
 			this.bindEvents();
 
 			var self = this;
@@ -130,6 +131,9 @@
 				}.bind(this),
 				'/enregistrement': function() {
 					self.renderEnregistrement();
+				}.bind(this),
+				'/personnes': function() {
+					self.renderPersonnes();
 				}.bind(this),
 				'/deconnexion': function() {
 					self.deconnexion();
@@ -308,6 +312,19 @@
 				});
 			}
 		},
+		recupererDroitAdmin: function(callbackSuccess, callbackError) {
+			$.ajax('/web/services/RestController.php', {
+				method: 'GET',
+				data : {
+					model: 'login',
+					action: 'recupererDroitAdmin'
+				}
+			}).success(function(data) {
+				callbackSuccess();
+			}).error(function() {
+				callbackError();
+			});
+		},
 		bindEvents: function () {
 			$('#app').on('submit', 'form#form-authentification', this.authentificate.bind(this));
 			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
@@ -325,6 +342,42 @@
 				self.renderBienvenue();
 			} else {
 				self.renderListeDeNaissance();
+			}
+		},
+		renderPersonnes: function() {
+			var self = this;
+			if (this.isLogged()) {
+				this.renderLogin({
+					login: self.user['user']['login']
+				});
+				this.recupererDroitAdmin(function() {
+					$.ajax("/web/services/RestController.php", {
+						data: {
+							model: 'articles',
+							action: 'articleReserve'
+						},
+						method: 'GET'
+					}).success(function(data) {
+						$.ajax("/web/services/RestController.php", {
+							data: {
+								model: 'login',
+								action: 'personnes'
+							},
+							method: 'GET'
+						}).success(function(data) {
+							$('#app').html(self.detailPersonnes(data));
+						}).error(function(jqXHR, textStatus, errorThrown) {
+							console.log(arguments);
+						});
+						$('#app').html(self.detailPersonnes(data));
+					}).error(function(jqXHR, textStatus, errorThrown) {
+						console.log(arguments);
+					});
+				}, function() {
+					self.router.setRoute('/');
+				});
+			} else {
+				this.router.setRoute('/');
 			}
 		},
 		renderListeDeNaissance: function () {
@@ -355,17 +408,21 @@
 				this.renderLogin({
 					login: self.user['user']['login']
 				});
-				$.ajax("/web/services/RestController.php", {
-					data: {
-						model: 'articles',
-						action: 'articleReserve'
-					},
-					method: 'GET'
-				}).success(function(data) {
-					$('#app').html(self.detailReservationArticleListeDeNaissance(data));
-					$('table.table').DataTable();
-				}).error(function(jqXHR, textStatus, errorThrown) {
-					console.log(arguments);
+				this.recupererDroitAdmin(function() {
+					$.ajax("/web/services/RestController.php", {
+						data: {
+							model: 'articles',
+							action: 'articleReserve'
+						},
+						method: 'GET'
+					}).success(function(data) {
+						$('#app').html(self.detailReservationArticleListeDeNaissance(data));
+						$('table.table').DataTable();
+					}).error(function(jqXHR, textStatus, errorThrown) {
+						console.log(arguments);
+					});
+				}, function() {
+					self.router.setRoute('/');
 				});
 			} else {
 				this.router.setRoute('/');
@@ -374,10 +431,14 @@
 		renderEdit: function(id) {
 			var self = this;
 			if (self.isLogged()) {
-				self.renderLogin({
-					login: self.user['user']['login']
+				this.recupererDroitAdmin(function() {
+					self.renderLogin({
+						login: self.user['user']['login']
+					});
+					self.renderFormArticle(id);
+				}, function() {
+					self.router.setRoute('/');
 				});
-				self.renderFormArticle(id);
 			} else {
 				this.router.setRoute('/');
 			}

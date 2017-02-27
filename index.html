@@ -263,6 +263,28 @@
 					</table>
 				</div>
 			</script>
+
+			<script id="detailPersonnes" type="text/x-handlerbars-template">
+				<div class="jumbotron">
+					<h1>Qui est inscrit ?</h1>
+				</div>
+				<div>
+					<table class="table table-responsive table-striped table-hover">
+						<thead>
+							<tr>
+								<th>login</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{#each this}}
+								<tr>
+									<td>{{this.login}}</td>
+								</tr>
+							{{/each}}
+						</tbody>
+					</table>
+				</div>
+			</script>
 		</div>
 
 		<script src="/node_modules/jquery/dist/jquery.js"></script>
