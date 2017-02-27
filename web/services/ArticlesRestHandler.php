@@ -53,6 +53,15 @@
 				order by p.login, r.quantiteReservee
 				'
 			);
+			$this->reqArticleReserveAvecValeurNulle = $this->bdd->prepare(
+				'
+				SELECT a.libelle, r.quantiteReservee, p.login
+				FROM TArticle a
+				join PersonneReserveCadeau r on a.id = r.idArticle
+				join TPersonne p on p.id = r.idPersonne
+				order by p.login, r.quantiteReservee
+				'
+			);
 			$this->reqSelectForUpdate = $this->bdd->prepare('select * from PersonneReserveCadeau where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqUpdate = $this->bdd->prepare('update PersonneReserveCadeau set quantiteReservee = :valeur where idArticle = :idArticle and idPersonne = :idPersonne');
 			$this->reqInsert = $this->bdd->prepare('insert into PersonneReserveCadeau (idArticle, idPersonne, quantiteReservee) values (:idArticle, :idPersonne, :valeur)');
@@ -75,6 +84,9 @@
 					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
 				} else if ($get['action'] == 'articleReserve') {
 					$reponse = $this->getArticleReserve($get);
+					$reponse = json_encode($reponse);
+				} else if ($this->action == 'articleReserveAvecValeurNulle') {
+					$reponse = $this->getArticleReserveAvecValeurNulle($get);
 					$reponse = json_encode($reponse);
 				} else {
 					$code = 500;
@@ -121,6 +133,19 @@
 			$this->reqArticleReserve->execute();
 			$resultat = array();
 			while($donnees = $this->reqArticleReserve->fetch()) {
+				array_push($resultat, array (
+					'article' => $donnees['libelle'],
+					'quantiteReservee' => $donnees['quantiteReservee'],
+					'login' => $donnees['login']
+				));
+			}
+			return $resultat;
+		}
+
+		private function getArticleReserveAvecValeurNulle ($get) {
+			$this->reqArticleReserveAvecValeurNulle->execute();
+			$resultat = array();
+			while($donnees = $this->reqArticleReserveAvecValeurNulle->fetch()) {
 				array_push($resultat, array (
 					'article' => $donnees['libelle'],
 					'quantiteReservee' => $donnees['quantiteReservee'],
