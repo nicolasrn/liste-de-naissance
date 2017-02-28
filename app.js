@@ -351,13 +351,6 @@
 					login: self.user['user']['login']
 				});
 				this.recupererDroitAdmin(function() {
-					$.ajax("/web/services/RestController.php", {
-						data: {
-							model: 'articles',
-							action: 'articleReserve'
-						},
-						method: 'GET'
-					}).success(function(data) {
 						$.ajax("/web/services/RestController.php", {
 							data: {
 								model: 'login',
@@ -369,10 +362,6 @@
 						}).error(function(jqXHR, textStatus, errorThrown) {
 							console.log(arguments);
 						});
-						$('#app').html(self.detailPersonnes(data));
-					}).error(function(jqXHR, textStatus, errorThrown) {
-						console.log(arguments);
-					});
 				}, function() {
 					self.router.setRoute('/');
 				});
