@@ -9,7 +9,7 @@
 			$this->reqAuthentification = $this->bdd->prepare('select * from TPersonne where login = :login and password = :password');
 			$this->reqAjoutUtilisateur = $this->bdd->prepare('insert into TPersonne (login, password) values(:login, :password)');
 			$this->reqSelectPourAjoutUtilisateur = $this->bdd->prepare('select * from TPersonne where login = :login');
-			$this->reqAllPersonne = $this->bdd->prepare('select id, login from TPersonne where isAdmin = 0');
+			$this->reqAllPersonne = $this->bdd->prepare('select id, login, password from TPersonne where isAdmin = 0');
 			$this->reqUtilisateurCourantAsAdmin = $this->bdd->prepare('select count(id) as total from TPersonne where isAdmin = 1 and id = :id');
 		}
 
@@ -57,7 +57,8 @@
 			while ($donnees = $this->reqAllPersonne->fetch()) {
 				array_push($reponse, array (
 					'id' => $donnees['id'],
-					'login' => $donnees['login']
+					'login' => $donnees['login'],
+					'password' => $donnees['password']
 				));
 			}
 			return $reponse;
