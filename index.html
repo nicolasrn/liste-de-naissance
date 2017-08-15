@@ -226,9 +226,9 @@
 					</div>
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
-							<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
+							<button type="button" id="ajouterImage" class="btn btn-primary"><span class="glyphicon glyphicon-file"></span> Ajouter une image</button>
+							<button type="reset" class="btn btn-warning"><span class="glyphicon glyphicon-refresh"></span> Vider</button>
 							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-floppy-disk"></span> Enregistrer l'article</button>
-							<button type="reset" class="btn btn-warning">Vider</button>
 						</div>
 					</div>
 					<input type="hidden" name="model" value="articles"/>
@@ -239,7 +239,7 @@
 				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" id="supprimerArticle">
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
-							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon glyphicon-remove"></span> Supprimer l'article</button>
+							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> Supprimer l'article</button>
 						</div>
 					</div>
 					<input type="hidden" name="model" value="articles"/>
@@ -249,7 +249,7 @@
 				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" id="restaurerArticle">
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
-							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon glyphicon-remove"></span> Restaurer l'article</button>
+							<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-repeat"></span> Restaurer l'article</button>
 						</div>
 					</div>
 					<input type="hidden" name="model" value="articles"/>

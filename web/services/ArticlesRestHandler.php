@@ -74,7 +74,7 @@
 			$this->reqUpdateArticle = $this->bdd->prepare('update TArticle set quantiteSouhaitee = :quantiteSouhaitee, libelle = :libelle where id = :id');
 			$this->reqDeleteImage = $this->bdd->prepare('delete from TImage where id = :id');
 			$this->reqModifierEtatArticle = $this->bdd->prepare('update TArticle set etat = :etat where id = :id');
-			$this->reqQuantiteReservePourArticle = $this->bdd->prepare('select COALESCE(sum(quantiteReservee), 0) from PersonneReserveCadeau where idArticle = :id');
+			$this->reqQuantiteReservePourArticle = $this->bdd->prepare('select COALESCE(sum(quantiteReservee), 0) as quantiteReservee from PersonneReserveCadeau where idArticle = :id');
 		}
 
 		public function handleGet($get) {
@@ -249,7 +249,8 @@
 			$res = [];
 			$qteReservation = $this->reqQuantiteReservePourArticle->execute(array('id' => $post['idArticle']));
 			while($qte = $this->reqQuantiteReservePourArticle->fetch()) {
-				$qteReservation = $qte;
+				$qteReservation = $qte['quantiteReservee'];
+				break;
 			}
 			if ($qteReservation == 0) {
 				$this->reqModifierEtatArticle->execute(array('id' => $post['idArticle'], 'etat' => 1));
