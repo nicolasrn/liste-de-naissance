@@ -196,7 +196,7 @@
 				}
 			});
 		},
-		enregistrement: function(event) {
+		enregistrerUtilisateur: function(event) {
 			event.preventDefault();
 			var self = this;
 			var form = event.target;
@@ -253,7 +253,7 @@
 				});
 			}
 		},
-		ajoutArticle: function(event) {
+		ajouterArticle: function(event) {
 			event.preventDefault();
 
 			var quantiteSouhaitee = event.target.quantiteSouhaitee.value;
@@ -286,7 +286,7 @@
 					processData: false,
 					contentType: false,
 					success: function (data) {
-						if (event.target.action == 'addArticle') {
+						if (event.target.action.value == 'addArticle') {
 							var message = function(messageList) {
 								if (messageList) {
 									var messages = $.map(messageList, function(valeur, index) {
@@ -312,6 +312,22 @@
 				});
 			}
 		},
+		supprimerArticle: function() {
+			event.preventDefault();
+			$.ajax('/web/services/RestController.php', {
+				method: 'POST',
+				data : {
+					'idArticle': event.target.idArticle.value,
+					'action': event.target.action.value,
+					'model': event.target.model.value
+				}
+			}).success(function(data) {
+				$('#resultatAjoutArticle').addClass('has-success');
+				$('#resultatAjoutArticle span.help-block').html(data['message']);
+			}).error(function(jqXHR, textStatus, errorThrown) {
+				console.log(arguments);
+			});
+		},
 		recupererDroitAdmin: function(callbackSuccess, callbackError) {
 			$.ajax('/web/services/RestController.php', {
 				method: 'GET',
@@ -327,13 +343,14 @@
 		},
 		bindEvents: function () {
 			$('#app').on('submit', 'form#form-authentification', this.authentificate.bind(this));
-			$('#app').on('submit', 'form#enregistrement', this.enregistrement.bind(this));
-			$('#app').on('submit', 'form#ajoutArticle', this.ajoutArticle.bind(this));
+			$('#app').on('submit', 'form#enregistrement', this.enregistrerUtilisateur.bind(this));
+			$('#app').on('submit', 'form#ajoutArticle', this.ajouterArticle.bind(this));
 			$('#app').on('reset', 'form#ajoutArticle', function(event) {
 				event.target.reset();
 				$('.list-image').empty();
 				$('#app').find('#ajouterImage').addFileToForm('index', 0);
 			}.bind(this));
+			$('#app').on('submit', 'form#supprimerArticle', this.supprimerArticle.bind(this));
 		},
 		renderHome: function() {
 			var self = this;

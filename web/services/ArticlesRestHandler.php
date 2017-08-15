@@ -11,6 +11,8 @@
 		private $reqSelectForUpdate;
 		private $reqInsert;
 		private $reqInsertArticle;
+		private $reqRemoveArticle;
+		private $reqQuantiteReservePourArticle;
 		private $reqInsertImages;
 		private $reqUpdateArticle;
 		private $reqArticleReserve;
@@ -26,6 +28,7 @@
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
+					where etat = 0
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) > COALESCE(sum(r.quantiteReservee), 0)
 					order by lower(a.libelle) asc
@@ -35,6 +38,7 @@
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
+					where etat = 0
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) = COALESCE(sum(r.quantiteReservee), 0)
 					order by lower(a.libelle) asc
@@ -69,10 +73,11 @@
 			$this->reqInsertImages = $this->bdd->prepare('insert into TImage (src, idArticle) values (:src, :idArticle)');
 			$this->reqUpdateArticle = $this->bdd->prepare('update TArticle set quantiteSouhaitee = :quantiteSouhaitee, libelle = :libelle where id = :id');
 			$this->reqDeleteImage = $this->bdd->prepare('delete from TImage where id = :id');
+			$this->reqRemoveArticle = $this->bdd->prepare('update TArticle set etat = 1 where id = :id');
+			$this->reqQuantiteReservePourArticle = $this->bdd->prepare('select count(*) from PersonneReserveCadeau where idArticle = :id');
 		}
 
 		public function handleGet($get) {
-			//var_dump($get);
 			$reponse = null;
 			$code = 200;
 			if (isset($get['action'])) {
@@ -195,10 +200,14 @@
 				$resImages = $this->enregristrerArticle($post);
 				$res = json_encode(array('id' => $resImages['idArticle'] , 'message' => $resImages['message']), JSON_FORCE_OBJECT);
 				$this->setHttpHeaders('application/json', $resImages['isSuccess'] ? 200 : 500);
-			} else if (isset($post['action']) && $post['action'] == 'updateArticle') {
-				$resImages = $this->updateArticle($post);
-				$res = json_encode(array('id' => $resImages['idArticle'] , 'message' => $resImages['message']), JSON_FORCE_OBJECT);
-				$this->setHttpHeaders('application/json', $resImages['idArticle'] > -1 ? 200 : 500);
+			} else if (isset($post['action']) && $post['action'] == 'removeArticle') {
+				$res = $this->removeArticle($post);
+				$res = json_encode(array('message' => $res['message']), JSON_FORCE_OBJECT);
+				$this->setHttpHeaders('application/json', 200);
+			}else if (isset($post['action']) && $post['action'] == 'updateArticle') {
+				$res = $this->updateArticle($post);
+				$res = json_encode(array('id' => $res['idArticle'] , 'message' => $res['message']), JSON_FORCE_OBJECT);
+				$this->setHttpHeaders('application/json', $res['idArticle'] > -1 ? 200 : 500);
 			} else if (isset($post['action']) && $post['action'] == 'updateReservation') {
 				$idUser = $post['idUser'];
 				$idArticle = $post['idArticle'];
@@ -232,16 +241,31 @@
 			return $res;
 		}
 
+		private function removeArticle($post) {
+			$res = [];
+			$qteReservation = $this->reqQuantiteReservePourArticle->execute(array('id' => $post['idArticle']));
+			while($qte = $this->reqQuantiteReservePourArticle->fetch()) {
+				$qteReservation = $qte;
+			}
+			if ($qteReservation == 0) {
+				$this->reqRemoveArticle->execute(array('id' => $post['idArticle']));
+				$res['message'] = 'suppression effectuée avec succès';
+			} else {
+				$res['message'] = 'impossible de supprimer, des réservations ont été effectuée sur cet article';
+			}
+			return $res;
+		}
+
 		private function enregristrerArticle($post) {
-			$resImages = $this->handleUploadFile($_FILES, $post);
+			$res = $this->handleUploadFile($_FILES, $post);
 			$idArticle = $post['idArticle'];
-			if ($resImages['isSuccess']) {
+			if ($res['isSuccess']) {
 				if ($post['idArticle'] == -1) {
 					$this->reqInsertArticle->execute(array(
 						'libelle' => $post['libelle'], 
 						'quantiteSouhaitee' => $post['quantiteSouhaitee']
 					));
-					$idArticle = $this->bdd->lastInsertId();
+					$res['idArticle'] = $idArticle = $this->bdd->lastInsertId();
 				} else {
 					$aSupprimer = explode(';', $post['toDelete']);
 					foreach ($aSupprimer as $key => $value) {
@@ -253,9 +277,11 @@
 						'libelle' => $post['libelle']
 					));
 				} 
-				$resImages = $this->enregristrerImage($resImages, $idArticle);
+				$res = $this->enregristrerImage($res, $idArticle);
+			} else {
+				$res['message'][] = "aucune image n'a été trouvé";
 			}
-			return $resImages;
+			return $res;
 		}
 
 		private function enregristrerImage($resImages, $idArticle) {

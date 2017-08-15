@@ -227,14 +227,24 @@
 					<div class="form-group">
 						<div class="col-sm-offset-2 col-sm-10">
 							<button type="button" id="ajouterImage" class="btn btn-info">Ajouter une image</button>
-							<button type="submit" class="btn btn-danger">Enregistrer l'article</button>
-							<button type="reset" class="btn btn-warning">vider</button>
+							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-floppy-disk"></span> Enregistrer l'article</button>
+							<button type="reset" class="btn btn-warning">Vider</button>
 						</div>
 					</div>
 					<input type="hidden" name="model" value="articles"/>
 					<input type="hidden" name="action" value="{{#if creation}}addArticle{{else}}updateArticle{{/if}}"/>
 					<input type="hidden" name="idArticle" value="{{id}}"/>
 					<input type="hidden" name="toDelete" value=""/>
+				</form>
+				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" id="supprimerArticle">
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon glyphicon-remove"></span> Supprimer l'article</button>
+						</div>
+					</div>
+					<input type="hidden" name="model" value="articles"/>
+					<input type="hidden" name="action" value="removeArticle"/>
+					<input type="hidden" name="idArticle" value="{{id}}"/>
 				</form>
 			</script>
 
