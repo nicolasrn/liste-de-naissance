@@ -246,6 +246,16 @@
 					<input type="hidden" name="action" value="removeArticle"/>
 					<input type="hidden" name="idArticle" value="{{id}}"/>
 				</form>
+				<form class="form-horizontal" action="/web/services/RestController.php" method="POST" id="restaurerArticle">
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon glyphicon-remove"></span> Restaurer l'article</button>
+						</div>
+					</div>
+					<input type="hidden" name="model" value="articles"/>
+					<input type="hidden" name="action" value="restaurerArticle"/>
+					<input type="hidden" name="idArticle" value="{{id}}"/>
+				</form>
 			</script>
 
 			<script id="detailReservation" type="text/x-handlerbars-template">

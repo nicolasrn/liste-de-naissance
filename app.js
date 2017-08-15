@@ -110,6 +110,8 @@
 			this.detailReservationArticleListeDeNaissance = Handlebars.compile($('#detailReservation').html());
 			this.detailPersonnes = Handlebars.compile($('#detailPersonnes').html());
 			this.bindEvents();
+			this.ETAT_ACTIF = 0;
+			this.ETAT_SUPPRIME = 1;
 
 			var self = this;
 
@@ -118,7 +120,10 @@
 					self.renderHome();
 				}.bind(this),
 				'/liste-de-naissance': function () {
-					self.renderListeDeNaissance();
+					self.renderListeDeNaissance(self.ETAT_ACTIF);
+				}.bind(this),
+				'/liste-de-naissance/removed': function () {
+					self.renderListeDeNaissance(self.ETAT_SUPPRIME);
 				}.bind(this),
 				'/liste-de-naissance/edit/:id': function(id) {
 					self.renderEdit(id);
@@ -127,7 +132,7 @@
 					self.renderEdit(null);
 				}.bind(this),
 				'/liste-de-naissance/detail': function() {
-					self.renderDetailReservationArticleListeDeNaissance();
+					self.renderDetailReservationsArticlesListeDeNaissance();
 				}.bind(this),
 				'/enregistrement': function() {
 					self.renderEnregistrement();
@@ -139,6 +144,18 @@
 					self.deconnexion();
 				}.bind(this)
 			});
+		},
+		bindEvents: function () {
+			$('#app').on('submit', 'form#form-authentification', this.authentificate.bind(this));
+			$('#app').on('submit', 'form#enregistrement', this.enregistrerUtilisateur.bind(this));
+			$('#app').on('submit', 'form#ajoutArticle', this.ajouterArticle.bind(this));
+			$('#app').on('reset', 'form#ajoutArticle', function(event) {
+				event.target.reset();
+				$('.list-image').empty();
+				$('#app').find('#ajouterImage').addFileToForm('index', 0);
+			}.bind(this));
+			$('#app').on('submit', 'form#supprimerArticle', this.supprimerArticle.bind(this));
+			$('#app').on('submit', 'form#restaurerArticle', this.restaurerArticle.bind(this));
 		},
 		deconnexion: function() {
 			Cookies.remove('ldn-user');
@@ -179,13 +196,14 @@
 				}
 			});
 		},
-		getListe: function(idUser, callbackSuccess, callbackError) {
+		getListe: function(idUser, etat, callbackSuccess, callbackError) {
 			$.ajax({
 				url: "/web/services/RestController.php", 
 				data: {
-					model: 'articles',
-					action: 'getAll',
-					idUser: idUser
+					'model': 'articles',
+					'action': 'getAll',
+					'etat': etat,
+					'idUser': idUser
 				},
 				method: 'GET',
 				success : function(data) {
@@ -328,6 +346,22 @@
 				console.log(arguments);
 			});
 		},
+		restaurerArticle: function() {
+			event.preventDefault();
+			$.ajax('/web/services/RestController.php', {
+				method: 'POST',
+				data : {
+					'idArticle': event.target.idArticle.value,
+					'action': event.target.action.value,
+					'model': event.target.model.value
+				}
+			}).success(function(data) {
+				$('#resultatAjoutArticle').addClass('has-success');
+				$('#resultatAjoutArticle span.help-block').html(data['message']);
+			}).error(function(jqXHR, textStatus, errorThrown) {
+				console.log(arguments);
+			});
+		},
 		recupererDroitAdmin: function(callbackSuccess, callbackError) {
 			$.ajax('/web/services/RestController.php', {
 				method: 'GET',
@@ -341,24 +375,13 @@
 				callbackError();
 			});
 		},
-		bindEvents: function () {
-			$('#app').on('submit', 'form#form-authentification', this.authentificate.bind(this));
-			$('#app').on('submit', 'form#enregistrement', this.enregistrerUtilisateur.bind(this));
-			$('#app').on('submit', 'form#ajoutArticle', this.ajouterArticle.bind(this));
-			$('#app').on('reset', 'form#ajoutArticle', function(event) {
-				event.target.reset();
-				$('.list-image').empty();
-				$('#app').find('#ajouterImage').addFileToForm('index', 0);
-			}.bind(this));
-			$('#app').on('submit', 'form#supprimerArticle', this.supprimerArticle.bind(this));
-		},
 		renderHome: function() {
 			var self = this;
 			if (!self.isLogged()) {
 				self.renderLogin();
 				self.renderBienvenue();
 			} else {
-				self.renderListeDeNaissance();
+				self.renderListeDeNaissance(self.ETAT_ACTIF);
 			}
 		},
 		renderPersonnes: function() {
@@ -386,13 +409,13 @@
 				this.router.setRoute('/');
 			}
 		},
-		renderListeDeNaissance: function () {
+		renderListeDeNaissance: function (etat) {
 			var self = this;
 			if (self.isLogged()) {
 				self.renderLogin({
 					login: self.user['user']['login']
 				});
-				self.getListe(self.user['user']['id'], function(data) {
+				self.getListe(self.user['user']['id'], etat, function(data) {
 					self.cadeaux = data;
 					$('#app').html(self.listeNaissanceTemplate({
 						cadeaux: self.cadeaux,
@@ -408,7 +431,7 @@
 				self.router.setRoute('/');
 			}
 		},
-		renderDetailReservationArticleListeDeNaissance: function() {
+		renderDetailReservationsArticlesListeDeNaissance: function() {
 			var self = this;
 			if (this.isLogged()) {
 				this.renderLogin({
@@ -418,7 +441,7 @@
 					$.ajax("/web/services/RestController.php", {
 						data: {
 							model: 'articles',
-							action: 'articleReserve'
+							action: 'articlesReserves'
 						},
 						method: 'GET'
 					}).success(function(data) {

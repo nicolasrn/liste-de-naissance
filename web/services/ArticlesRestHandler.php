@@ -11,7 +11,7 @@
 		private $reqSelectForUpdate;
 		private $reqInsert;
 		private $reqInsertArticle;
-		private $reqRemoveArticle;
+		private $reqModifierEtatArticle;
 		private $reqQuantiteReservePourArticle;
 		private $reqInsertImages;
 		private $reqUpdateArticle;
@@ -28,7 +28,7 @@
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
-					where etat = 0
+					where etat = :etat
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) > COALESCE(sum(r.quantiteReservee), 0)
 					order by lower(a.libelle) asc
@@ -38,7 +38,7 @@
 					SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
 					FROM TArticle a
 					left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
-					where etat = 0
+					where etat = :etat
 					group by a.id, libelle, quantiteSouhaitee
 					having COALESCE(a.quantiteSouhaitee, 0) = COALESCE(sum(r.quantiteReservee), 0)
 					order by lower(a.libelle) asc
@@ -73,8 +73,8 @@
 			$this->reqInsertImages = $this->bdd->prepare('insert into TImage (src, idArticle) values (:src, :idArticle)');
 			$this->reqUpdateArticle = $this->bdd->prepare('update TArticle set quantiteSouhaitee = :quantiteSouhaitee, libelle = :libelle where id = :id');
 			$this->reqDeleteImage = $this->bdd->prepare('delete from TImage where id = :id');
-			$this->reqRemoveArticle = $this->bdd->prepare('update TArticle set etat = 1 where id = :id');
-			$this->reqQuantiteReservePourArticle = $this->bdd->prepare('select count(*) from PersonneReserveCadeau where idArticle = :id');
+			$this->reqModifierEtatArticle = $this->bdd->prepare('update TArticle set etat = :etat where id = :id');
+			$this->reqQuantiteReservePourArticle = $this->bdd->prepare('select COALESCE(sum(quantiteReservee), 0) from PersonneReserveCadeau where idArticle = :id');
 		}
 
 		public function handleGet($get) {
@@ -87,11 +87,11 @@
 				} else if ($get['action'] == 'get') {
 					$reponse = $this->get($get);
 					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
-				} else if ($get['action'] == 'articleReserve') {
-					$reponse = $this->getArticleReserve($get);
+				} else if ($get['action'] == 'articlesReserves') {
+					$reponse = $this->getArticlesReserves($get);
 					$reponse = json_encode($reponse);
-				} else if ($this->action == 'articleReserveAvecValeurNulle') {
-					$reponse = $this->getArticleReserveAvecValeurNulle($get);
+				} else if ($this->action == 'articlesReservesAvecValeurNulle') {
+					$reponse = $this->getArticlesReservesAvecValeurNulle($get);
 					$reponse = json_encode($reponse);
 				} else {
 					$code = 500;
@@ -118,7 +118,7 @@
 		}
 
 		private function getAll($get) {
-			$this->reqArticles->execute();
+			$this->reqArticles->execute(array('etat' => $get['etat']));
 			$resultats = array();
 			$index = 0;
 			while($donnees = $this->reqArticles->fetch()) {
@@ -134,7 +134,7 @@
 			return $resultats;
 		}
 
-		private function getArticleReserve ($get) {
+		private function getArticlesReserves ($get) {
 			$this->reqArticleReserve->execute();
 			$resultat = array();
 			while($donnees = $this->reqArticleReserve->fetch()) {
@@ -147,7 +147,7 @@
 			return $resultat;
 		}
 
-		private function getArticleReserveAvecValeurNulle ($get) {
+		private function getArticlesReservesAvecValeurNulle ($get) {
 			$this->reqArticleReserveAvecValeurNulle->execute();
 			$resultat = array();
 			while($donnees = $this->reqArticleReserveAvecValeurNulle->fetch()) {
@@ -204,7 +204,11 @@
 				$res = $this->removeArticle($post);
 				$res = json_encode(array('message' => $res['message']), JSON_FORCE_OBJECT);
 				$this->setHttpHeaders('application/json', 200);
-			}else if (isset($post['action']) && $post['action'] == 'updateArticle') {
+			}  else if (isset($post['action']) && $post['action'] == 'restaurerArticle') {
+				$res = $this->restaurerArticle($post);
+				$res = json_encode(array('message' => $res['message']), JSON_FORCE_OBJECT);
+				$this->setHttpHeaders('application/json', 200);
+			} else if (isset($post['action']) && $post['action'] == 'updateArticle') {
 				$res = $this->updateArticle($post);
 				$res = json_encode(array('id' => $res['idArticle'] , 'message' => $res['message']), JSON_FORCE_OBJECT);
 				$this->setHttpHeaders('application/json', $res['idArticle'] > -1 ? 200 : 500);
@@ -248,11 +252,18 @@
 				$qteReservation = $qte;
 			}
 			if ($qteReservation == 0) {
-				$this->reqRemoveArticle->execute(array('id' => $post['idArticle']));
+				$this->reqModifierEtatArticle->execute(array('id' => $post['idArticle'], 'etat' => 1));
 				$res['message'] = 'suppression effectuée avec succès';
 			} else {
 				$res['message'] = 'impossible de supprimer, des réservations ont été effectuée sur cet article';
 			}
+			return $res;
+		}
+
+		private function restaurerArticle($post) {
+			$res = [];
+			$this->reqModifierEtatArticle->execute(array('id' => $post['idArticle'], 'etat' => 0));
+			$res['message'] = 'restauration effectuée avec succès';
 			return $res;
 		}
 

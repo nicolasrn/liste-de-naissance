@@ -9,6 +9,9 @@
 		$buffer = "";
 		$lien = array();
 		array_push($lien, array(
+			'url' => '#/liste-de-naissance/removed',
+			'label' => 'articles supprimés'
+		), array(
 			'url' => '#/liste-de-naissance/edit',
 			'label' => 'ajouter des articles'
 		), array(
