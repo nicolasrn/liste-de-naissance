@@ -105,6 +105,8 @@
 			this.formLoginTemplate = Handlebars.compile($('#login-template').html());
 			this.bienvenueTemplate = Handlebars.compile($('#bienvenue-template').html());
 			this.listeNaissanceTemplate = Handlebars.compile($('#app-template').html());
+			this.messageInformationTemplate = Handlebars.compile($('#message-information-template').html());
+			this.mesActionsTemplate = Handlebars.compile($('#mes-actions-template').html());
 			this.enregistrementTemplate = Handlebars.compile($('#enregistrement-template').html());
 			this.ajoutArticleTemplate = Handlebars.compile($('#ajoutArticle-template').html());
 			this.detailReservationArticleListeDeNaissance = Handlebars.compile($('#detailReservation').html());
@@ -156,7 +158,7 @@
 			}.bind(this));
 			$('#app').on('submit', 'form#supprimerArticle', this.supprimerArticle.bind(this));
 			$('#app').on('submit', 'form#restaurerArticle', this.restaurerArticle.bind(this));
-			$('#app').on('keyup', '#mes-actions', this.search.bind(this));
+			$('#section-mes-actions').on('keyup', '#search', this.search.bind(this));
 		},
 		deconnexion: function() {
 			Cookies.remove('ldn-user');
@@ -417,6 +419,9 @@
 				self.renderLogin({
 					login: self.user['user']['login']
 				});
+				$('section#section-message-information').html(self.messageInformationTemplate());
+				$('section#section-mes-actions').html(self.mesActionsTemplate());
+
 				self.getListe(self.user['user']['id'], etat, function(data) {
 					self.cadeaux = data;
 					$('#app').html(self.listeNaissanceTemplate({
@@ -426,7 +431,7 @@
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
-					$('#app').find('#mes-actions').handleMesActions({
+					$('#app').prev('#section-mes-actions').find('#mes-actions').handleMesActions({
 						'callbackRefresch' : self.refresch,
 						'liste' : self.cadeaux,
 						'context' : App
@@ -444,6 +449,7 @@
 				this.renderLogin({
 					login: self.user['user']['login']
 				});
+				$('section').empty();
 				this.recupererDroitAdmin(function() {
 					$.ajax("/web/services/RestController.php", {
 						data: {
@@ -467,6 +473,7 @@
 		renderEdit: function(id) {
 			var self = this;
 			if (self.isLogged()) {
+				$('section').empty();
 				this.recupererDroitAdmin(function() {
 					self.renderLogin({
 						login: self.user['user']['login']
@@ -506,12 +513,15 @@
 			}
 		},
 		renderEnregistrement: function () {
+			$('section').empty();
 			$('#app').html(this.enregistrementTemplate());
 		},
 		renderLogin: function (options) {
+			$('section').empty();
 			$('#navbar-content').html(this.formLoginTemplate(options));
 		},
 		renderBienvenue: function () {
+			$('section').empty();
 			$('#app').html(this.bienvenueTemplate());
 		},
 		refresch: function(listeParDefaut, context) {
@@ -543,14 +553,6 @@
 			}));
 			$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 			$('#app').find('.carousel').carousel();
-			$('#app').find('#mes-actions').handleMesActions({
-				'callbackRefresch' : self.refresch,
-				'liste' : self.cadeaux,
-				'context' : App
-			});
-
-			$('#app').find('#search').focus();
-			$('#app').find('#search')[0].selectionStart = $('#app').find('#search')[0].selectionEnd = $('#app').find('#search')[0].value.length;
 		},
 		search: function() {
 			this.refresch(this.cadeaux);

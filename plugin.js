@@ -156,7 +156,7 @@
 				return cmp;
 			});
 			callbackRefresch(liste, context);
-			$(mesActions.selector).next(idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, qteUtilisateur) {
+			$('#app ' + idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, qteUtilisateur) {
 				var article = $(this).parents('[id^=article-]');
 				if (qteUtilisateur.value > 0) {
 					article.css({opacity: 1});
@@ -168,8 +168,8 @@
 
 		mesActions.find('#tous-les-articles').on('click', function(event) {
 			event.preventDefault();
-			callbackRefresch(liste, context);
-			$(mesActions.selector).next(idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, item) {
+			callbackRefresch(defauts['liste'], context);
+			$('#app ' + idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, item) {
 				$(this).parents('[id^=article-]').css({opacity: 1});
 			});
 		});
