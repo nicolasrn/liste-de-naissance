@@ -156,6 +156,7 @@
 			}.bind(this));
 			$('#app').on('submit', 'form#supprimerArticle', this.supprimerArticle.bind(this));
 			$('#app').on('submit', 'form#restaurerArticle', this.restaurerArticle.bind(this));
+			$('#app').on('keyup', '#mes-actions', this.search.bind(this));
 		},
 		deconnexion: function() {
 			Cookies.remove('ldn-user');
@@ -314,11 +315,12 @@
 								}
 								return "";
 							}(data['message']);
-							$('#resultatAjoutArticle span.help-block').html("l'article a bien été inséré : " + message);
+							$('#resultatAjoutArticle span.help-block').html("l'article a bien été inséré : (" + message + ")");
 							$('#resultatAjoutArticle').addClass('has-success');
 							event.target.reset();
 						} else {
-							console.log('update');
+							$('#resultatAjoutArticle span.help-block').html("l'article a bien été mis à jour");
+							$('#resultatAjoutArticle').addClass('has-success');
 						}
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -424,6 +426,11 @@
 					}));
 					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
 					$('#app').find('.carousel').carousel();
+					$('#app').find('#mes-actions').handleMesActions({
+						'callbackRefresch' : self.refresch,
+						'liste' : self.cadeaux,
+						'context' : App
+					});
 				}, function(jqXHR, textStatus, errorThrown) {
 					console.log(jqXHR, textStatus, errorThrown);
 				});
@@ -506,6 +513,47 @@
 		},
 		renderBienvenue: function () {
 			$('#app').html(this.bienvenueTemplate());
+		},
+		refresch: function(listeParDefaut, context) {
+			var self = context || this;
+			var search = $('#search').val();
+			var cadeauxFiltres = listeParDefaut;
+
+			if (search !== "") {
+				var options = {
+					shouldSort: false,
+					threshold: 0.5,
+					location: 0,
+					distance: 100,
+					maxPatternLength: 32,
+					minMatchCharLength: 1,
+					keys: [
+						"libelle"
+						]
+					};
+				var fuse = new Fuse(cadeauxFiltres, options);
+				cadeauxFiltres = fuse.search(search);
+			}
+			
+			$('#app').html(self.listeNaissanceTemplate({
+				cadeaux: cadeauxFiltres,
+				nbColonneMax: 12,
+				nbColonneAffichees:3,
+				search:search
+			}));
+			$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
+			$('#app').find('.carousel').carousel();
+			$('#app').find('#mes-actions').handleMesActions({
+				'callbackRefresch' : self.refresch,
+				'liste' : self.cadeaux,
+				'context' : App
+			});
+
+			$('#app').find('#search').focus();
+			$('#app').find('#search')[0].selectionStart = $('#app').find('#search')[0].selectionEnd = $('#app').find('#search')[0].value.length;
+		},
+		search: function() {
+			this.refresch(this.cadeaux);
 		}
 	};
 

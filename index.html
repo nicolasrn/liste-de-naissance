@@ -64,7 +64,24 @@
 						</p>
 					</div>
 				</div>
-				
+
+				<div id="mes-actions" class="jumbotron body" data-on="#liste-de-naissance">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label for="search" class="col-md-2 control-label">filtrer</label>
+							<div class="col-md-10">
+								<input type="text" class="form-control" id="search" placeholder="libelle de l'article" value="{{search}}">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-offset-2 col-md-10">
+								<button class="btn btn-default" id="mes-articles">mettre en évidence mes réservations</button>
+								<button class="btn btn-default" id="tous-les-articles">tous les articles</button>
+							</div>
+						</div>
+					</form>
+				</div>
+
 				<div id="liste-de-naissance">
 					{{#each cadeaux}}
 					{{#ifmod @index @root.nbColonneAffichees 0 0}}
@@ -316,6 +333,7 @@
 		<script src="/node_modules/handlebars/dist/handlebars.js"></script>
 		<script src="/node_modules/director/build/director.js"></script>
 		<script src="/node_modules/js-cookie/src/js.cookie.js"></script>
+		<script src="/node_modules/fuse.js/dist/fuse.js"></script>
 		
 		<script src="/plugin.js"></script>
 		<script src="/app.js"></script>

@@ -136,4 +136,42 @@
 			}
 		});
 	};
+
+	$.fn.handleMesActions = function(options) {
+		defauts = $.extend({}, options);
+		var mesActions = $(this);
+		var idListe = mesActions.attr('data-on');
+
+		var liste = defauts['liste'].slice(0);
+		var callbackRefresch = defauts['callbackRefresch'];
+		var context = defauts['context'];
+		
+		mesActions.find('#mes-articles').on('click', function(event) {
+			event.preventDefault();
+			liste = liste.sort(function(a, b) {
+				var cmp = b.quantiteReserveeUtilisateur - a.quantiteReserveeUtilisateur;
+				if (cmp == 0) {
+					return b.libelle - a.libelle;
+				}
+				return cmp;
+			});
+			callbackRefresch(liste, context);
+			$(mesActions.selector).next(idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, qteUtilisateur) {
+				var article = $(this).parents('[id^=article-]');
+				if (qteUtilisateur.value > 0) {
+					article.css({opacity: 1});
+				} else {
+					article.css({opacity: 0.2});
+				}
+			});
+		});
+
+		mesActions.find('#tous-les-articles').on('click', function(event) {
+			event.preventDefault();
+			callbackRefresch(liste, context);
+			$(mesActions.selector).next(idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, item) {
+				$(this).parents('[id^=article-]').css({opacity: 1});
+			});
+		});
+	};
 })(jQuery);

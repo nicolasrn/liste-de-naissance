@@ -83,7 +83,7 @@
 			if (isset($get['action'])) {
 				if ($get['action'] == 'getAll') {
 					$reponse = $this->getAll($get);
-					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
+					$reponse = json_encode($reponse);
 				} else if ($get['action'] == 'get') {
 					$reponse = $this->get($get);
 					$reponse = json_encode($reponse, JSON_FORCE_OBJECT);
@@ -197,21 +197,21 @@
 				if (!isset($post['idArticle']) || empty($post['idArticle'])) {
 					$post['idArticle'] = intval(-1);
 				}
-				$resImages = $this->enregristrerArticle($post);
-				$res = json_encode(array('id' => $resImages['idArticle'] , 'message' => $resImages['message']), JSON_FORCE_OBJECT);
-				$this->setHttpHeaders('application/json', $resImages['isSuccess'] ? 200 : 500);
+				$resArticle = $this->enregristrerArticle($post);
+				$res = json_encode(array('id' => $resArticle['idArticle'] , 'message' => $resArticle['message']));
+				$this->setHttpHeaders('application/json', $resArticle['isSuccess'] ? 200 : 500);
 			} else if (isset($post['action']) && $post['action'] == 'removeArticle') {
 				$res = $this->removeArticle($post);
-				$res = json_encode(array('message' => $res['message']), JSON_FORCE_OBJECT);
+				$res = json_encode(array('message' => $res['message']));
 				$this->setHttpHeaders('application/json', 200);
 			}  else if (isset($post['action']) && $post['action'] == 'restaurerArticle') {
 				$res = $this->restaurerArticle($post);
-				$res = json_encode(array('message' => $res['message']), JSON_FORCE_OBJECT);
+				$res = json_encode(array('message' => $res['message']));
 				$this->setHttpHeaders('application/json', 200);
 			} else if (isset($post['action']) && $post['action'] == 'updateArticle') {
-				$res = $this->updateArticle($post);
-				$res = json_encode(array('id' => $res['idArticle'] , 'message' => $res['message']), JSON_FORCE_OBJECT);
-				$this->setHttpHeaders('application/json', $res['idArticle'] > -1 ? 200 : 500);
+				$resArticle = $this->updateArticle($post);
+				$res = json_encode(array('id' => $resArticle['idArticle'] , 'message' => $resArticle['message']));
+				$this->setHttpHeaders('application/json', $resArticle['idArticle'] > -1 ? 200 : 500);
 			} else if (isset($post['action']) && $post['action'] == 'updateReservation') {
 				$idUser = $post['idUser'];
 				$idArticle = $post['idArticle'];
@@ -281,9 +281,9 @@
 				} else {
 					$aSupprimer = explode(';', $post['toDelete']);
 					foreach ($aSupprimer as $key => $value) {
-						$res = $this->reqDeleteImage->execute(array('id' => $value));
+						$this->reqDeleteImage->execute(array('id' => $value));
 					}
-					$res = $this->reqUpdateArticle->execute(array(
+					$this->reqUpdateArticle->execute(array(
 						'quantiteSouhaitee' => $post['quantiteSouhaitee'], 
 						'id' => $idArticle,
 						'libelle' => $post['libelle']
@@ -299,7 +299,7 @@
 		private function enregristrerImage($resImages, $idArticle) {
 			foreach ($resImages['paths'] as $path) {
 				$path = str_replace($this->siteRoot, '', $path);
-				$res = $this->reqInsertImages->execute(array(
+				$this->reqInsertImages->execute(array(
 					'src' => $path,
 					'idArticle' => $idArticle
 				));

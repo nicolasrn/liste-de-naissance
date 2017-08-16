@@ -30,6 +30,12 @@ div.parentFeedBack {
 	font-size: initial;
 }
 
+.jumbotron.body {
+	padding-left: 0px;
+	padding-right: 0px;
+	background-color: transparent;
+}
+
 .caption h2::first-letter {
 	text-transform: uppercase;
 }
