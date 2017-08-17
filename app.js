@@ -429,7 +429,10 @@
 						nbColonneMax: 12,
 						nbColonneAffichees:3
 					}));
-					$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
+					$('#app').find('.compteur').compteur({
+						'idUser': self.user['user']['id'],
+						'context': App 
+					});
 					$('#app').find('.carousel').carousel();
 					$('#app').prev('#section-mes-actions').find('#mes-actions').handleMesActions({
 						'callbackRefresch' : self.refresch,
@@ -499,7 +502,10 @@
 					method: 'GET',
 					success : function(data) {
 						$('#app').html(self.ajoutArticleTemplate(data));
-						$('#app').find('.compteur').compteur({idUser: self.user['user']['id'], isEditMode: true});
+						$('#app').find('.compteur').compteur({
+							'idUser': self.user['user']['id'], 
+							'isEditMode': true
+						});
 						$('#app').find('#ajouterImage').addFileToForm(data);
 					}, 
 					error: function(jqXHR, textStatus, errorThrown) {
@@ -508,7 +514,10 @@
 				});
 			} else {
 				$('#app').html(this.ajoutArticleTemplate({quantiteSouhaitee: 0, creation: true}));
-				$('#app').find('.compteur').compteur({idUser: this.user['user']['id'], isEditMode: true});
+				$('#app').find('.compteur').compteur({
+					'idUser': this.user['user']['id'], 
+					'isEditMode': true
+				});
 				$('#app').find('#ajouterImage').addFileToForm();
 			}
 		},
@@ -551,7 +560,10 @@
 				nbColonneAffichees:3,
 				search:search
 			}));
-			$('#app').find('.compteur').compteur({idUser: self.user['user']['id']});
+			$('#app').find('.compteur').compteur({
+				'idUser': self.user['user']['id'],
+				'context': App 
+			});
 			$('#app').find('.carousel').carousel();
 		},
 		search: function() {

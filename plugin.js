@@ -67,6 +67,14 @@
 					'newValue': data.newValue
 				},
 				success : function(response) {
+					if (data.cadeaux && data.cadeaux != null) {
+						var articlesCorrespondant = $.grep(data.cadeaux, function(elementOfArray, index) {
+							return elementOfArray.id === data.idArticle;
+						});
+						$.each(articlesCorrespondant, function (index, item) {
+							item.quantiteReserveeUtilisateur = data.newValue;
+						});
+					}
 					data.feedBack.text(data.feedBack.attr('data-value'));
 					data.feedBack.show();
 					data.feedBack.fadeOut(1500);
@@ -78,8 +86,9 @@
 		}
 
 		var defauts = {
-			idUser: null,
-			isEditMode: false
+			'idUser': null,
+			'isEditMode': false,
+			'context': null
 		}; 
 
 		defauts = $.extend(defauts, options); 
@@ -98,7 +107,7 @@
 			var qteUtilisateur = qteUtilisateurInitial;
 			var qteMin = 0;
 			
-			var jButtonPlus = jElement.find('button.plus').on('click', {labelQteReserve: jQteReservee, inputCompteur: jInput, max: qteSouhaitee}, function(event) {
+			var jButtonPlus = jElement.find('button.plus').on('click', {'labelQteReserve': jQteReservee, 'inputCompteur': jInput, 'max': qteSouhaitee}, function(event) {
 				qteUtilisateur = parseInt(event.data.inputCompteur.val());
 				var isMaxDepasse = ++qteUtilisateur + (qteReserveeInitial - qteUtilisateurInitial) > event.data.max;
 				++qteReservee;
@@ -110,10 +119,10 @@
 				event.data.inputCompteur.val(qteUtilisateur);
 				event.data.labelQteReserve.text(qteReservee);
 				if (defauts['isEditMode'] === false) { 
-					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser'], feedBack: jFeedBack});
+					$(event.target).trigger('updateData', {'newValue': qteUtilisateur, 'idArticle': idArticle, 'idUser': defauts['idUser'], 'feedBack': jFeedBack, 'cadeaux': defauts['context'].cadeaux});
 				}
 			});
-			var jButtonMoins = jElement.find('button.moins').on('click', {labelQteReserve: jQteReservee, inputCompteur: jInput, min: qteMin}, function(event) {
+			var jButtonMoins = jElement.find('button.moins').on('click', {'labelQteReserve': jQteReservee, 'inputCompteur': jInput, 'min': qteMin}, function(event) {
 				qteUtilisateur = parseInt(event.data.inputCompteur.val());
 				var isMinDepasse = --qteUtilisateur < event.data.min;
 				--qteReservee;
@@ -126,7 +135,7 @@
 				event.data.labelQteReserve.text(qteReservee);
 
 				if (defauts['isEditMode'] === false) { 
-					$(event.target).trigger('updateData', {newValue: qteUtilisateur, idArticle: idArticle, idUser: defauts['idUser'], feedBack: jFeedBack});
+					$(event.target).trigger('updateData', {'newValue': qteUtilisateur, 'idArticle': idArticle, 'idUser': defauts['idUser'], 'feedBack': jFeedBack, 'cadeaux': defauts['context'].cadeaux});
 				}
 			});
 
@@ -162,6 +171,7 @@
 					article.css({opacity: 1});
 				} else {
 					article.css({opacity: 0.2});
+					article.find('.compteur button').prop('disabled', true);
 				}
 			});
 		});
@@ -170,7 +180,9 @@
 			event.preventDefault();
 			callbackRefresch(defauts['liste'], context);
 			$('#app ' + idListe).find('input[id^=quantiteReserveeUtilisateur]').each(function(index, item) {
-				$(this).parents('[id^=article-]').css({opacity: 1});
+				var article = $(this).parents('[id^=article-]');
+				article.css({opacity: 1});
+				article.find('.compteur button').prop('disabled', false);
 			});
 		});
 	};
