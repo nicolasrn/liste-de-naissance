@@ -1,3 +1,4 @@
 .htaccess
-web/services/ConfigurationBDD.php
-node_modules/
+application/config/*perso.php
+img
+ci_sessions
