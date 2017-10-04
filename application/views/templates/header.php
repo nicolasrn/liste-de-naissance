@@ -39,4 +39,4 @@
 			</div>
 		</nav>
 		
-		<div class="container">
+		<div class="container" data-url="<?php echo site_url('/contenuPage') ;?>" data-plugin="messageParZone">

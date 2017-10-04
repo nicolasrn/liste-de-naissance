@@ -36,6 +36,7 @@ class ListeDeSouhaits extends UserConnected {
   protected function loadPage($page = 'home', $data = array()) {
     parent::loadPage($this->getPageSelonFamille(), $data);
   }
+
 }
 
 ?>

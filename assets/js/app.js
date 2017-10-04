@@ -7,6 +7,7 @@
     $('#menuAdmin').menu({url : '/index.php/home/menu'});
     $('#ajouterImage').addFileToForm();
     $('[data-plugin=dataTable]').dataTable();
+    $('[data-plugin=messageParZone]').messageParZone();
     
     if (Cookies.get('utilisateur')) {
       $('section#liste').liste({

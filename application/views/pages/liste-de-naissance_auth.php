@@ -1,27 +1,4 @@
-<div class="jumbotron">
-  <h1>Pour bébé</h1>
-  <div class="leight">
-    <p>
-      Vous nous demandez souvent ce qui nous ferait plaisir ou ce dont nous aurions besoin ... avec ce site, vous êtes sûrs de transformer l’essai ;-)
-    </p>
-    <p>
-      Nous sommes déjà bien équipés en poussette trio, transat, parc, baby cook, écharpe de portage, lit à barreaux, linge premier mois, ... (évitons les surplus et les doublons)
-    </p>
-    <p>
-      En plus de la liste, que vous trouverez ci-après, nous aimerions beaucoup pouvoir réaliser une séance photo avec bébé afin de garder de beaux souvenirs de ses premiers jours.
-      Si vous le souhaitez, vous pouvez participer financièrement à cette séance photo ainsi qu'à l'achat de sièges auto et autres dépenses via, par exemple, une carte cadeau multi-enseigne.
-    </p>
-    <p>
-      Pensez à bien indiquer les éléments que vous voulez nous offrir afin d’éviter les surplus et les doublons.
-    </p>
-    <p>
-      Si vous avez des questions, n'hésitez pas à nous contacter ;-)					
-    </p>
-    <p>
-      Merci d’avance pour vos délicates attentions. <br>
-      Laurence, Nicolas et Mini-nous
-    </p>
-  </div>
+<div class="<?php echo $type; ?>" id="<?php echo $personne; ?>">
 </div>
 
 <section id="liste-mes-actions">
