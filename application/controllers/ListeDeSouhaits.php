@@ -27,10 +27,8 @@ class ListeDeSouhaits extends UserConnected {
       'personne' => $personne, 
       'type' => $type, 
       'id' => $id);
-    $data['urlAjouterArticle'] = site_url('/articles' . '/edit' . '/' . $data['personne'] . '/' . $data['type']);
-    $data['urlDetailReservation'] = site_url('/articles' . '/detailReservation' . '/' . $data['personne'] . '/' . $data['type']);
-    $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $data['personne'] . '/' . $data['type'] . '/' . $data['etat']);
-    $data['menuAdministrationListeDeSouhaits'] = $this->menuAdmin();
+    $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $personne . '/' . $type . '/0');
+    $data['menuAdministrationListeDeSouhaits'] = $this->menuAdmin($personne, $type);
     $this->loadPage($this->getPageSelonFamille(), $data);
   }
 
@@ -38,11 +36,14 @@ class ListeDeSouhaits extends UserConnected {
     parent::loadPage($this->getPageSelonFamille(), $data);
   }
 
-  private function menuAdmin() {
+  private function menuAdmin($personne, $type) {
+    $urlAjouterArticle = site_url('/articles' . '/edit' . '/' . $personne . '/' . $type);
+    $urlDetailReservation = site_url('/articles' . '/detailReservation' . '/' . $personne . '/' . $type);
+    
     return $this->isAdmin() ? '
       <ul class="nav nav-tabs">
-        <li><a href="<?php echo $urlAjouterArticle ?>">Ajouter un article</a></li>
-        <li><a href="<?php echo $urlDetailReservation ?>">Voir le détail des réservations</a></li>
+        <li><a href="' . $urlAjouterArticle . '">Ajouter un article</a></li>
+        <li><a href="' . $urlDetailReservation . '">Voir le détail des réservations</a></li>
       </ul>' : '';
   }
 
