@@ -59,7 +59,11 @@
             </div>
 
             <div class="caption">
-              <h2>{{{this.libelle}}}</h2>
+              {{#if this.libelleEdit}}
+              <h2>{{{this.libelleEdit}}}</h2>
+              {{else}}
+              <h2>{{this.libelle}}</h2>
+              {{/if}}
               <div class="compteur" id="compteur-{{this.id}}">
                 <div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
                 <div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotale}}</span> réserve(s)</div>

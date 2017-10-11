@@ -14,7 +14,7 @@ class Articles extends AbstractController {
     if ($this->isAdmin()) {
       $urlEdit = site_url('articles/edit/chloe/naissance');
       foreach($articles as $article) {
-        $article->libelle = "<a href='" . $urlEdit . "/$article->id" . "'>" . $article->libelle . '</a>';
+        $article->libelleEdit = "<a href='" . $urlEdit . "/$article->id" . "'>" . $article->libelle . '</a>';
       }
     }
     $this->load->view('rest/json', array('resultat' => $articles));
