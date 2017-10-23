@@ -48,18 +48,31 @@ abstract class AbstractController extends CI_Controller {
   }
 
   protected function menuAdmin($personne, $type) {
-    $urlAjouterArticle = site_url('/articles' . '/edit' . '/' . $personne . '/' . $type);
-    $urlDetailReservation = site_url('/articles' . '/detailReservation' . '/' . $personne . '/' . $type);
-    $urlVoirArticlesSupprimes = site_url("/listeDeSouhaits/show/$personne/$type/1");
-    $urlVoirArticlesEnAttente = site_url("/listeDeSouhaits/show/$personne/$type/2");
+    $data = array(
+      "Ajouter un article" => site_url('/articles' . '/edit' . '/' . $personne . '/' . $type),
+      "Voir les articles" => site_url("/listeDeSouhaits/show/$personne/$type"),
+      "Voir les articles supprimés" => site_url("/listeDeSouhaits/show/$personne/$type/1"),
+      "Voir les articles en attente" => site_url("/listeDeSouhaits/show/$personne/$type/2"),
+      "Voir le détail des réservations" => site_url('/articles' . '/detailReservation' . '/' . $personne . '/' . $type)
+    );
+
+    $buffer = "";
+    foreach ($data as $libelle => $lien) {
+      if ($this->isActive($lien)) {
+        $buffer .= '<li class="active"><a href="#">' . $libelle . '</a></li>';
+      } else {
+        $buffer .= '<li><a href="' . $lien . '">' . $libelle . '</a></li>';
+      }
+    }
 
     return $this->isAdmin() ? '
       <ul class="nav nav-tabs">
-        <li><a href="' . $urlAjouterArticle . '">Ajouter un article</a></li>
-        <li><a href="' . $urlVoirArticlesSupprimes . '">Voir les articles supprimés</a></li>
-        <li><a href="' . $urlVoirArticlesEnAttente . '">Voir les articles en attente</a></li>
-        <li><a href="' . $urlDetailReservation . '">Voir le détail des réservations</a></li>
+        ' . $buffer . '
       </ul>' : '';
+  }
+
+  private function isActive($url) {
+    return site_url($this->uri->uri_string()) == $url ? "active" : "";
   }
 
 }
