@@ -12,7 +12,7 @@ class Articles extends AbstractController {
   public function get($personne, $type, $etat) {
     $articles = $this->articles_model->getArticles($personne, $type, $etat);
     if ($this->isAdmin()) {
-      $urlEdit = site_url('articles/edit/chloe/naissance');
+      $urlEdit = site_url("articles/edit/$personne/$type");
       foreach($articles as $article) {
         $article->libelleEdit = "<a href='" . $urlEdit . "/$article->id" . "'>" . $article->libelle . '</a>';
       }

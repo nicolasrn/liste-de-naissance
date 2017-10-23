@@ -27,7 +27,7 @@ class ListeDeSouhaits extends UserConnected {
       'personne' => $personne, 
       'type' => $type, 
       'id' => $id);
-    $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $personne . '/' . $type . '/0');
+    $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $personne . '/' . $type . '/' . $etat);
     $data['menuAdministrationListeDeSouhaits'] = $this->menuAdmin($personne, $type);
     $this->loadPage($this->getPageSelonFamille(), $data);
   }
