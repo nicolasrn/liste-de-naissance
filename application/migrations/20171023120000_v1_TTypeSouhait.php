@@ -5,19 +5,19 @@ class Migration_v1_TTypeSouhait extends CI_Migration {
   public function creerTable() {
     $this->dbforge->add_field(array(
       'pour' => array(
-        'type' => 'varchar(255)'
+        'type' => 'varchar(50)'
       ),
       'libellePour' => array(
         'type' => 'varchar(255)'
       ),
       'type' => array(
-        'type' => 'varchar(255)'
+        'type' => 'varchar(50)'
       ),
       'libelleType' => array(
         'type' => 'varchar(255)'
       ),
       'annee' => array(
-        'type' => 'varchar(45)'
+        'type' => 'varchar(4)'
       ),
       'actif' => array(
         'type' => 'int',
