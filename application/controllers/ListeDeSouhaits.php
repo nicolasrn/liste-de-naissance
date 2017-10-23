@@ -21,9 +21,9 @@ class ListeDeSouhaits extends UserConnected {
     }
   }
 
-  public function show($personne, $type, $id = null) {
+  public function show($personne, $type, $etat = 0, $id = null) {
     $data = array(
-      'etat' => 0,
+      'etat' => $etat,
       'personne' => $personne, 
       'type' => $type, 
       'id' => $id);
@@ -34,17 +34,6 @@ class ListeDeSouhaits extends UserConnected {
 
   protected function loadPage($page = 'home', $data = array()) {
     parent::loadPage($this->getPageSelonFamille(), $data);
-  }
-
-  private function menuAdmin($personne, $type) {
-    $urlAjouterArticle = site_url('/articles' . '/edit' . '/' . $personne . '/' . $type);
-    $urlDetailReservation = site_url('/articles' . '/detailReservation' . '/' . $personne . '/' . $type);
-    
-    return $this->isAdmin() ? '
-      <ul class="nav nav-tabs">
-        <li><a href="' . $urlAjouterArticle . '">Ajouter un article</a></li>
-        <li><a href="' . $urlDetailReservation . '">Voir le détail des réservations</a></li>
-      </ul>' : '';
   }
 
 }

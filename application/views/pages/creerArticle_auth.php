@@ -1,3 +1,9 @@
+<?php 
+if (isset($menuAdministrationListeDeSouhaits)) {
+  echo $menuAdministrationListeDeSouhaits;
+}
+?>
+
 <div class="jumbotron">
   <h1>Ajout / Modification d'article</h1>
 </div>
@@ -19,6 +25,14 @@
     <label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" name="libelle" value="<?php echo $libelle; ?>" id="libelleArticle" placeholder="Libellé de l'article">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="etat" class="col-sm-2 control-label">Etat</label>
+    <div class="col-sm-10">
+      <select name="etat" class="form-control">
+        <?php echo $optionsEtat ?>
+      </select> 
     </div>
   </div>
   <div class="form-group compteur" id="compteur-nouvelArticle">

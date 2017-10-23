@@ -85,7 +85,7 @@
         $query = $this->db->query($sql, array(
           $this->input->post('libelle'), 
           $this->input->post('quantiteSouhaitee'), 
-          0, 
+          $this->input->post('etat'), 
           $type, 
           $personne));
           $idArticle = $this->db->insert_id();
@@ -97,9 +97,10 @@
         $this->db->where('id', $idArticle);
         $this->db->update('TArticle', array(
           'libelle' => $this->input->post('libelle'),
-          'quantiteSouhaitee' => $this->input->post('quantiteSouhaitee')
-          )
-        );
+          'quantiteSouhaitee' => $this->input->post('quantiteSouhaitee'), 
+          'etat' => $this->input->post('etat')
+        ));
+        var_dump($this->db->last_query());
       }
       $this->enregistrerImage($res['data'], $idArticle);
       return $res;
@@ -110,6 +111,7 @@
       $config['upload_path']          = "img";
       $config['allowed_types']        = 'gif|jpg|png';
       $config['max_size']             = 2048;
+      $config['overwrite']            = true;
 
       $this->load->library('upload', $config);
       $res = array('messages' => array(), 'data' => array());

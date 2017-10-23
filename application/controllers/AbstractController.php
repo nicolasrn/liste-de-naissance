@@ -47,6 +47,21 @@ abstract class AbstractController extends CI_Controller {
     return $this->utilisateur_model->isAdmin();
   }
 
+  protected function menuAdmin($personne, $type) {
+    $urlAjouterArticle = site_url('/articles' . '/edit' . '/' . $personne . '/' . $type);
+    $urlDetailReservation = site_url('/articles' . '/detailReservation' . '/' . $personne . '/' . $type);
+    $urlVoirArticlesSupprimes = site_url("/listeDeSouhaits/show/$personne/$type/1");
+    $urlVoirArticlesEnAttente = site_url("/listeDeSouhaits/show/$personne/$type/2");
+
+    return $this->isAdmin() ? '
+      <ul class="nav nav-tabs">
+        <li><a href="' . $urlAjouterArticle . '">Ajouter un article</a></li>
+        <li><a href="' . $urlVoirArticlesSupprimes . '">Voir les articles supprimés</a></li>
+        <li><a href="' . $urlVoirArticlesEnAttente . '">Voir les articles en attente</a></li>
+        <li><a href="' . $urlDetailReservation . '">Voir le détail des réservations</a></li>
+      </ul>' : '';
+  }
+
 }
 
 ?>

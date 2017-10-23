@@ -1,3 +1,9 @@
+<?php 
+if (isset($menuAdministrationListeDeSouhaits)) {
+  echo $menuAdministrationListeDeSouhaits;
+}
+?>
+
 <div class="jumbotron">
   <h1>Qui a réservé quoi ?</h1>
 </div>

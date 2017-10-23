@@ -22,7 +22,7 @@ class Articles extends AbstractController {
 
   public function detailReservation($personne, $type) {
     $reservations = $this->articles_model->getDetailReservations($personne, $type);
-    $this->loadTemplate('detailDesReservations', array('reservations' => $reservations));
+    $this->loadTemplate('detailDesReservations', array('reservations' => $reservations, 'menuAdministrationListeDeSouhaits' => $this->menuAdmin($personne, $type)));
   }
 
   public function edit($personne, $type, $id = null) {
@@ -41,11 +41,13 @@ class Articles extends AbstractController {
           break;
       }
     }
+    $data = null;
     if ($id == null) {
       $data = array(
         'personne' => $personne, 
         'type' => $type, 
         'libelle' => '', 
+        'etat' => $this->input->post('etat'),
         'quantiteSouhaitee' => 0, 
         'id' => $id,
         'urlEnregistrement' => current_url(),
@@ -57,12 +59,20 @@ class Articles extends AbstractController {
         'personne' => $personne, 
         'type' => $type, 
         'libelle' => $article->libelle, 
+        'etat' => $article->etat,
         'quantiteSouhaitee' => $article->quantiteSouhaitee, 
         'id' => $article->id,
         'images' => array_chunk($article->img, 4),
         'urlEnregistrement' => current_url()
       );
     }
+    $this->load->model('etat_model');
+    $options = "";
+    foreach($this->etat_model->getAll() as $etat) {
+      $options .=  "<option value='$etat->code'" . ($etat->code == $data['etat'] ? 'selected=selected': "") . "'>$etat->libelle</option>";
+    }
+    $data["optionsEtat"]  = $options;
+    $data['menuAdministrationListeDeSouhaits'] = $this->menuAdmin($personne, $type);
     $this->loadPage('creerArticle', $data);
   }
 }
