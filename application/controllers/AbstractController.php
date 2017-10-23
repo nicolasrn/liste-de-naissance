@@ -13,7 +13,7 @@ abstract class AbstractController extends CI_Controller {
     $data = array_merge(array(
       'etat' => 0,
       'personne' => 'chloe', 
-      'type' => 'naissance', 
+      'type' => 'naissance-2017', 
       'id' => null), $data);
     $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $data['personne'] . '/' . $data['type'] . '/' . $data['etat']);
 

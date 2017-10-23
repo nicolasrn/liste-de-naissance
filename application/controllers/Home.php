@@ -42,26 +42,20 @@ class Home extends UserConnected {
     if (!$this->isConnected() || !$this->isMembreFamille()) {
       return $buffer;
     }
+    $this->load->model('typeSouhait_model');
+
     $liens = array();
-    array_push($liens, array(
-      'submenu' => array(
-        array('label' => 'liste de naissance', 'url' => site_url('/listeDeSouhaits/show/chloe/naissance')),
-        array('label' => 'anniversaire', 'url' => site_url('/listeDeSouhaits/show/chloe/cadeau'))
-      ),
-      'label' => 'Chloé'
-    ));
-    array_push($liens, array(
-      'submenu' => array(
-        array('label' => 'anniversaire', 'url' => site_url('/listeDeSouhaits/show/laurence/cadeau'))
-      ),
-      'label' => 'Laurence'
-    ));
-    array_push($liens, array(
-      'submenu' => array(
-        array('label' => 'anniversaire', 'url' => site_url('/listeDeSouhaits/show/nicolas/cadeau'))
-      ),
-      'label' => 'Nicolas'
-    ));
+    $pour = array();
+    foreach($this->typeSouhait_model->get() as $type) {
+      if (!isset($pour[$type->libellePour])) {
+        $pour[$type->libellePour] = array();
+      }
+      array_push($pour[$type->libellePour], array('label' => $type->libelleType, 'url' => site_url("/listeDeSouhaits/show/$type->pour/$type->type-$type->annee")));
+    }
+
+    foreach($pour as $pour => $lien) {
+      array_push($liens, array("submenu" => $lien, 'label' => $pour));
+    }
 
     if ($this->isAdmin()) {
       array_push($liens, array(
