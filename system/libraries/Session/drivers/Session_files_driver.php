@@ -100,7 +100,6 @@ class CI_Session_files_driver extends CI_Session_driver implements SessionHandle
 	 */
 	public function __construct(&$params)
 	{
-		var_dump('session');
 		parent::__construct($params);
 
 		if (isset($this->_config['save_path']))

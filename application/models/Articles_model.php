@@ -100,7 +100,6 @@
           'quantiteSouhaitee' => $this->input->post('quantiteSouhaitee'), 
           'etat' => $this->input->post('etat')
         ));
-        var_dump($this->db->last_query());
       }
       $this->enregistrerImage($res['data'], $idArticle);
       return $res;
