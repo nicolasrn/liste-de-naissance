@@ -48,16 +48,16 @@ class Migration_v1_TTypeSouhait extends CI_Migration {
       'actif' => 1
     ));
     $this->db->insert('TTypeSouhait', array(
-      'pour' => 'nicolas',
-      'libellePour' => 'Nicolas',
+      'pour' => 'laurence',
+      'libellePour' => 'Laurence',
       'type' => 'noel',
       'libelleType' => 'Nöel',
       'annee' => '2017',
       'actif' => 1
     ));
     $this->db->insert('TTypeSouhait', array(
-      'pour' => 'laurence',
-      'libellePour' => 'Laurence',
+      'pour' => 'nicolas',
+      'libellePour' => 'Nicolas',
       'type' => 'noel',
       'libelleType' => 'Nöel',
       'annee' => '2017',

@@ -65,10 +65,7 @@ abstract class AbstractController extends CI_Controller {
       }
     }
 
-    return $this->isAdmin() ? '
-      <ul class="nav nav-tabs">
-        ' . $buffer . '
-      </ul>' : '';
+    return $this->isAdmin() ? '<ul class="nav nav-tabs nav-justified">' . $buffer . '</ul>' : '';
   }
 
   private function isActive($url) {
