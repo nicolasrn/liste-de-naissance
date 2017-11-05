@@ -109,7 +109,7 @@
       $count = count($_FILES);
       $config['upload_path']          = "img";
       $config['allowed_types']        = 'gif|jpg|png';
-      $config['max_size']             = 2048;
+      $config['max_size']             = 0;
       $config['overwrite']            = true;
 
       $this->load->library('upload', $config);

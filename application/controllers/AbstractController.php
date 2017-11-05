@@ -10,11 +10,7 @@ abstract class AbstractController extends CI_Controller {
   }
 
   protected function loadPage($page = 'home', $data = array()) {
-    $data = array_merge(array(
-      'etat' => 0,
-      'personne' => 'chloe', 
-      'type' => 'naissance-2017', 
-      'id' => null), $data);
+    $data = array_merge($this->getDataParDefaut(), $data);
     $data['urlWebService'] = site_url('/articles' . '/get' . '/' . $data['personne'] . '/' . $data['type'] . '/' . $data['etat']);
 
     $this->load->view('templates/header', $data);
@@ -72,6 +68,20 @@ abstract class AbstractController extends CI_Controller {
     return site_url($this->uri->uri_string()) == $url ? "active" : "";
   }
 
+  private function getDataParDefaut() {
+    if ($this->isMembreFamille()) {
+      return array(
+        'etat' => 0,
+        'personne' => 'chloe', 
+        'type' => 'noel-2017', 
+        'id' => null); 
+    }
+    return array(
+      'etat' => 0,
+      'personne' => 'chloe', 
+      'type' => 'naissance-2017', 
+      'id' => null);
+  }
 }
 
 ?>
