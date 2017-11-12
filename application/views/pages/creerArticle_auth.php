@@ -22,9 +22,35 @@ if (isset($menuAdministrationListeDeSouhaits)) {
     </span>
   </div>
   <div class="form-group">
+  <?php echo validation_errors(); ?>
+  </div>
+  <div class="form-group">
     <label for="libelleArticle" class="col-sm-2 control-label">Libellé de l'article</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" name="libelle" value="<?php echo $libelle; ?>" id="libelleArticle" placeholder="Libellé de l'article">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="ordrePrix" class="col-sm-2 control-label">ordre de prix</label>
+    <div class="col-sm-10">
+      <input type="number" step="0.01" class="form-control" name="ordrePrix" value="<?php echo $ordrePrix; ?>" id="ordrePrix" placeholder="ordre de prix">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="lieu" class="col-sm-2 control-label">lieu</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="lieu" value="<?php echo $lieu; ?>" id="lieu" placeholder="lieu">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="libelleUrl" class="col-sm-2 control-label">libellé et url</label>
+    <div class="col-sm-10">
+      <div class="form-inline">
+        <label for="libelleUrl" class="sr-only">libellé</label>
+        <input type="text" class="form-control" name="libelleUrl" value="<?php echo $libelleUrl; ?>" id="libelleUrl" placeholder="libelle du lien">
+        <label for="url" class="sr-only">url</label>
+        <input type="url" class="form-control" name="url" value="<?php echo $url; ?>" id="url" placeholder="url">
+      </div>
     </div>
   </div>
   <div class="form-group">

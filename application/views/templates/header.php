@@ -33,10 +33,10 @@
 					<div id="menuAdmin">
 					</div>
 					<div id="navbar-content">
-						<div id="zone-login" data-connexion-rapide data-message="Bonjour, {{login}}" data-deconnexion="<?php echo site_url('home/deconnexion'); ?>">
+						<div id="zone-login" data-connexion-rapide data-message="Bonjour, {{login}}" data-deconnexion="<?php echo site_url('home/deconnexion'); ?>"></div>
 					</div>
 				</div>
 			</div>
 		</nav>
-		
-		<div class="container" data-url="<?php echo site_url('/contenuPage') ;?>" data-plugin="messageParZone">
+
+		<div class="container">

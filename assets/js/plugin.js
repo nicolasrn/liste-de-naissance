@@ -199,13 +199,15 @@
 	$.fn.messageParZone = function (options) {
 		var defauts = $.extend({}, options);
 
-		$.ajax($(this).attr('data-url'), {})
-		.success(function(data) {
-			$.each(data, function(index, item) {
-				$(item.path).addClass('jumbotron').html(item.text);
-			})
-		}).error(function() {
-			console.log(arguments);
+		return $(this).each(function() {
+			$.ajax($(this).attr('data-url'), {})
+			.success(function(data) {
+				$.each(data, function(index, item) {
+					$(item.path).addClass('jumbotron').html(item.text);
+				})
+			}).error(function() {
+				console.log(arguments);
+			});
 		});
 
 		return $(this);

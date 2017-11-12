@@ -9,7 +9,7 @@
 </div>
 
 <div class="col-md-offset-3 col-md-6">
-  <div data-show-message="<?php echo $this->session->flashdata('enregistrementOk') !== null && $this->session->flashdata('enregistrementOk'); ?>" data-message="Félicitation vous vous êtes enregistrer, vous pouvez vous connecter" data-niveau="text-info"></div> 
+  <div data-show-message="<?php echo $this->session->flashdata('enregistrementOk') !== null && $this->session->flashdata('enregistrementOk'); ?>" data-message="Félicitation vous vous êtes enregistré, vous pouvez vous connecter" data-niveau="text-info"></div> 
   <form method="POST" action="<?php echo site_url('/home/connexion'); ?>" id="form-authentification" class="form-horizontal">
     <?php echo validation_errors(); ?>
     <div class="<?php if (isset($erreur)) echo 'text-danger'; ?>"><?php if (isset($erreur)) echo $erreur ?></div>

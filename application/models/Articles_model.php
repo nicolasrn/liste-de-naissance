@@ -15,7 +15,7 @@
       $sql = '
       select * 
       from (
-        SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
+        SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale, ordrePrix, lieu, url, libelleUrl
         FROM TArticle a
         left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
         where etat = ?
@@ -27,7 +27,7 @@
       ) a union 
       select * 
       from (
-        SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale
+        SELECT a.id, a.libelle, COALESCE(a.quantiteSouhaitee, 0) quantiteSouhaitee, COALESCE(sum(r.quantiteReservee), 0) as quantiteReserveeTotale, ordrePrix, lieu, url, libelleUrl
         FROM TArticle a
         left join PersonneReserveCadeau r on a.id = r.idArticle and quantiteReservee > 0
         where etat = ?
@@ -81,13 +81,18 @@
       $idArticle = $this->input->post('idArticle');
       $res = $this->handleFiles();
       if ($idArticle == -1) {
-        $sql = 'insert into TArticle (libelle, quantiteSouhaitee, etat, type, aDestinationDe) values (?, ?, ?, ?, ?)';
+        $sql = 'insert into TArticle (libelle, quantiteSouhaitee, etat, type, aDestinationDe, ordrePrix, lieu, url, libelleUrl) values (?, ?, ?, ?, ?, ?, ?, ?, ?)';
         $query = $this->db->query($sql, array(
-          $this->input->post('libelle'), 
-          $this->input->post('quantiteSouhaitee'), 
-          $this->input->post('etat'), 
-          $type, 
-          $personne));
+            $this->input->post('libelle'), 
+            $this->input->post('quantiteSouhaitee'), 
+            $this->input->post('etat'), 
+            $type, 
+            $personne,
+            $this->input->post('ordrePrix'),
+            $this->input->post('lieu'),
+            $this->input->post('url'),
+            $this->input->post('libelleUrl'),
+          ));
           $idArticle = $this->db->insert_id();
       } else {
         $aSupprimer = explode(';', $this->input->post('toDelete'));
@@ -98,7 +103,11 @@
         $this->db->update('TArticle', array(
           'libelle' => $this->input->post('libelle'),
           'quantiteSouhaitee' => $this->input->post('quantiteSouhaitee'), 
-          'etat' => $this->input->post('etat')
+          'etat' => $this->input->post('etat'),
+          'ordrePrix' => $this->input->post('ordrePrix'),
+          'lieu' => $this->input->post('lieu'),
+          'url' => $this->input->post('url'),
+          'libelleUrl' => $this->input->post('libelleUrl')
         ));
       }
       $this->enregistrerImage($res['data'], $idArticle);

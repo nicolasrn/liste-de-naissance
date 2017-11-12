@@ -1,4 +1,4 @@
-<div class="<?php echo $type; ?>" id="<?php echo $personne; ?>">
+<div class="<?php echo $type; ?>" id="<?php echo $personne; ?>" data-url="<?php echo site_url('/contenuPage') ;?>" data-plugin="messageParZone">
 </div>
 
 <section id="liste-mes-actions">
@@ -59,11 +59,25 @@
             </div>
 
             <div class="caption">
-              {{#if this.libelleEdit}}
-              <h2>{{{this.libelleEdit}}}</h2>
-              {{else}}
-              <h2>{{this.libelle}}</h2>
-              {{/if}}
+              <h2>
+                {{#if this.libelleEdit}}
+                  {{{this.libelleEdit}}}
+                {{else}}
+                  {{this.libelle}}
+                {{/if}}
+              </h2>
+              <div class="description">
+                {{#ifCond this.lieu '||' this.url}}
+                <h3 class="small">
+                  Vous pouvez trouver cet article
+                  {{#if this.lieu}} chez {{this.lieu}} {{/if}}
+                  {{#if this.url}} {{#if this.lieu}} ou {{/if}} sur  <a href="{{this.url}}" target="_blank">{{#if this.libelleUrl}}{{this.libelleUrl}}{{else}}{{this.url}}{{/if}}</a> {{/if}}
+                </h3>
+                {{/ifCond}}
+                {{#if this.ordrePrix}}
+                  <h4 class="small">Pour une valeur approximative de {{this.ordrePrix}} €</h4>
+                {{/if}}
+              </div>
               <div class="compteur" id="compteur-{{this.id}}">
                 <div><span class="quantiteSouhaitee">{{this.quantiteSouhaitee}}</span> ça serait bien</div>
                 <div>déjà <span class="quantiteReservee">{{this.quantiteReserveeTotale}}</span> réserve(s)</div>

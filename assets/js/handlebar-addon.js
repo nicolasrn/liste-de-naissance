@@ -1,18 +1,18 @@
-;(function($) {
+; (function ($) {
 	"use-strict";
 
 	Handlebars.registerHelper('eq', function (a, b, options) {
 		return a === b ? options.fn(this) : options.inverse(this);
 	});
 
-	Handlebars.registerHelper('ifReservationPossible', function(a, b, options) {
-		if(a - b > 0) {
+	Handlebars.registerHelper('ifReservationPossible', function (a, b, options) {
+		if (a - b > 0) {
 			return options.fn(this);
 		}
 		return options.inverse(this);
 	});
 
-	Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+	Handlebars.registerHelper("math", function (lvalue, operator, rvalue, options) {
 		var lvalue = parseFloat(lvalue);
 		var rvalue = parseFloat(rvalue);
 
@@ -25,7 +25,34 @@
 		}[operator];
 	});
 
-	Handlebars.registerHelper("ifmod", function(index, modulo, resultat, delta, options) {
+	Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+		switch (operator) {
+			case '==':
+				return (v1 == v2) ? options.fn(this) : options.inverse(this);
+			case '===':
+				return (v1 === v2) ? options.fn(this) : options.inverse(this);
+			case '!=':
+				return (v1 != v2) ? options.fn(this) : options.inverse(this);
+			case '!==':
+				return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+			case '<':
+				return (v1 < v2) ? options.fn(this) : options.inverse(this);
+			case '<=':
+				return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+			case '>':
+				return (v1 > v2) ? options.fn(this) : options.inverse(this);
+			case '>=':
+				return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+			case '&&':
+				return (v1 && v2) ? options.fn(this) : options.inverse(this);
+			case '||':
+				return (v1 || v2) ? options.fn(this) : options.inverse(this);
+			default:
+				return options.inverse(this);
+		}
+	});
+
+	Handlebars.registerHelper("ifmod", function (index, modulo, resultat, delta, options) {
 		var index = parseFloat(index);
 		var modulo = parseFloat(modulo);
 		var resultat = parseFloat(resultat) + parseFloat(delta);
@@ -37,7 +64,7 @@
 		return resultatComparaison ? options.fn(this) : options.inverse(this);
 	});
 
-	Handlebars.registerHelper('eachWithParent', function(context, parentId, options) {
+	Handlebars.registerHelper('eachWithParent', function (context, parentId, options) {
 		if (!options) {
 			throw new Exception('Must pass iterator to #eachWithParent');
 		}
@@ -49,18 +76,18 @@
 			data = Handlebars.createFrame(options.data);
 		}
 
-		if(context && typeof context === 'object') {
+		if (context && typeof context === 'object') {
 			if (Handlebars.Utils.isArray(context)) {
-				for(var j = context.length; i<j; i++) {
+				for (var j = context.length; i < j; i++) {
 					if (data) {
 						data.index = i;
 						data.first = (i === 0);
-						data.last  = (i === (context.length-1));
+						data.last = (i === (context.length - 1));
 						data.parentId = parentId;
 					}
 					ret = ret + fn(context[i], { data: data });
 				}
-			} else  {
+			} else {
 				for (var property in context) {
 					if (context.hasOwnProperty(property)) {
 						if (data) {
@@ -75,10 +102,10 @@
 			}
 		}
 
-		if(i === 0){
+		if (i === 0) {
 			ret = inverse(this);
 		}
 
 		return ret;
-  });
-}) (jQuery);
+	});
+})(jQuery);

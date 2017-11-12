@@ -7,6 +7,7 @@ class Articles extends AbstractController {
   public function __construct() {
     parent::__construct();
     $this->load->model('articles_model');
+    $this->load->library('form_validation');
   }
 
   public function get($personne, $type, $etat) {
@@ -26,19 +27,23 @@ class Articles extends AbstractController {
   }
 
   public function edit($personne, $type, $id = null) {
-    $action = $this->input->post('action');
+    $this->form_validation->set_error_delimiters('<div class="text-danger">', '</div>');
+    $this->form_validation->set_rules('libelle', 'Libellé de l\'article', 'required');
     $messages = [];
-    if ($action !== null) {
-      switch($action) {
-        case 'creerOuMaj' :
-          $messages = $this->articles_model->enregistrerArticle($personne, $type, $id)['messages'];
-          break;
-        case 'supprimer' :
-          $messages = $this->articles_model->supprimerArticle();
-          break;
-        case 'restaurer' :
-          $messages = $this->articles_model->restaurerArticle();
-          break;
+    if ($this->form_validation->run() === TRUE) {
+      $action = $this->input->post('action');
+      if ($action !== null) {
+        switch($action) {
+          case 'creerOuMaj' :
+            $messages = $this->articles_model->enregistrerArticle($personne, $type, $id)['messages'];
+            break;
+          case 'supprimer' :
+            $messages = $this->articles_model->supprimerArticle();
+            break;
+          case 'restaurer' :
+            $messages = $this->articles_model->restaurerArticle();
+            break;
+        }
       }
     }
     $data = null;
@@ -51,6 +56,10 @@ class Articles extends AbstractController {
         'quantiteSouhaitee' => 0, 
         'id' => $id,
         'urlEnregistrement' => current_url(),
+        'ordrePrix' => 0.0,
+        'lieu' => '',
+        'url' => '',
+        'libelleUrl' => '',
         'messages' => $messages
       );
     } else {
@@ -63,7 +72,11 @@ class Articles extends AbstractController {
         'quantiteSouhaitee' => $article->quantiteSouhaitee, 
         'id' => $article->id,
         'images' => array_chunk($article->img, 4),
-        'urlEnregistrement' => current_url()
+        'urlEnregistrement' => current_url(),
+        'ordrePrix' => $article->ordrePrix,
+        'lieu' => $article->lieu,
+        'url' => $article->url,
+        'libelleUrl' => $article->libelleUrl,
       );
     }
     $this->load->model('etat_model');
