@@ -37,48 +37,69 @@ class Home extends UserConnected {
     }
   }
 
+  private function isAllow($path) {
+    $urls = array_map(function($item) { return $item->url; }, $this->personnes_model->getAllowsPages($this->getUtilisateur()->id));
+    foreach ($urls as $index => $url) {
+      if (strpos($path, $url) !== false) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public function menu() {
+    $this->load->model('typeSouhait_model');
+    $this->load->model('personnes_model');
+
     $buffer = "";
-    if (!$this->isConnected() || !$this->isMembreFamille()) {
+    if (!$this->isConnected()) {
       return $buffer;
     }
-    $this->load->model('typeSouhait_model');
 
     $liens = array();
     $pour = array();
     foreach($this->typeSouhait_model->get() as $type) {
-      if (!isset($pour[$type->libellePour])) {
-        $pour[$type->libellePour] = array();
+      $path = "/listeDeSouhaits/show/$type->pour/$type->type-$type->annee";
+      if ($this->isAllow($path)) {
+        if (!isset($pour[$type->libellePour])) {
+          $pour[$type->libellePour] = array();
+        }
+        array_push($pour[$type->libellePour], array('label' => $type->libelleType, 'url' => site_url($path)));
       }
-      array_push($pour[$type->libellePour], array('label' => $type->libelleType, 'url' => site_url("/listeDeSouhaits/show/$type->pour/$type->type-$type->annee")));
     }
 
     foreach($pour as $pour => $lien) {
       array_push($liens, array("submenu" => $lien, 'label' => $pour));
     }
 
+    $navbar = "";
     if ($this->isAdmin()) {
       array_push($liens, array(
         'url' => site_url('/personnes'),
         'label' => 'Personnes'
       ));
+      array_push($liens, array(
+        'url' => site_url('/personnes/habilitations'),
+        'label' => 'Habilitations'
+      ));
+
+      $navbar .= '<ul class="nav navbar-nav">';
+      $navbar .= '<li><a data-plugin="navigationHistorique" href="#back" class="glyphicon glyphicon-chevron-left"></a></li>';
+      $navbar .= '<li><a data-plugin="navigationHistorique" href="#forward" class="glyphicon glyphicon-chevron-right"></a></li>';
+      $navbar .= "</ul>";
     }
 
     $buffer = '<ul class="nav navbar-nav">';
     foreach($liens as $index => $informations) {
       if (isset($informations['submenu'])) {
-        $buffer = $buffer . '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">' . $informations['label'] .' <span class="caret"></span></a>' . $this->showSubMenu($informations['submenu']) . '</li>';
+        $buffer .= '<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">' . $informations['label'] .' <span class="caret"></span></a>' . $this->showSubMenu($informations['submenu']) . '</li>';
       } else {
-        $buffer = $buffer . '<li><a href="' . $informations['url'] . '">' . $informations['label'] . '</a></li>';
+        $buffer .= '<li><a href="' . $informations['url'] . '">' . $informations['label'] . '</a></li>';
       }
     }
-    $buffer = $buffer . "</ul>";
+    $buffer .= "</ul>";
 
-    $buffer .= '<ul class="nav navbar-nav">';
-    $buffer .= '<li><a data-plugin="navigationHistorique" href="#back" class="glyphicon glyphicon-chevron-left"></a></li>';
-    $buffer .= '<li><a data-plugin="navigationHistorique" href="#forward" class="glyphicon glyphicon-chevron-right"></a></li>';
-    $buffer = $buffer . "</ul>";
-    echo $buffer;
+    echo $buffer . $navbar;
   }
 
   private function showSubMenu($submenu) {

@@ -6,7 +6,9 @@
     $('[data-show-message]').showMessage();
     $('#menuAdmin').menu({url : '/index.php/home/menu'});
     $('#ajouterImage').addFileToForm();
-    $('[data-plugin=dataTable]').dataTable();
+    $('[data-plugin=dataTable]').dataTable({
+      paging: false
+    });
     $('[data-plugin=messageParZone]').messageParZone();
     
     if (Cookies.get('utilisateur')) {

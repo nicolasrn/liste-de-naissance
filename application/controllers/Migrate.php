@@ -14,6 +14,7 @@ class Migrate extends CI_Controller {
   public function down() {
     $this->load->library('migration');
     $this->migration->version(0);
+    show_error($this->migration->error_string());
   }
 }
 

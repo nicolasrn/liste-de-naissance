@@ -35,6 +35,11 @@ abstract class AbstractController extends CI_Controller {
     return get_cookie("utilisateur") !== null;
   }
 
+  protected function getUtilisateur() {
+    $utilisateur = get_cookie("utilisateur");
+    return json_decode($utilisateur);
+  }
+
   protected function isMembreFamille() {
     return $this->utilisateur_model->isMembreFamille();
   }
@@ -69,17 +74,17 @@ abstract class AbstractController extends CI_Controller {
   }
 
   private function getDataParDefaut() {
-    if ($this->isMembreFamille()) {
+    /*if ($this->isMembreFamille()) {
       return array(
         'etat' => 0,
         'personne' => 'chloe', 
         'type' => 'noel-2017', 
         'id' => null); 
-    }
+    }*/
     return array(
       'etat' => 0,
       'personne' => 'chloe', 
-      'type' => 'naissance-2017', 
+      'type' => 'noel-2017', 
       'id' => null);
   }
 }
