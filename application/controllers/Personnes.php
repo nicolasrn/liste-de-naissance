@@ -12,12 +12,16 @@ class Personnes extends UserConnected {
     $this->load->model('personnes_model');
   }
 
+  public function update($habilitation = null) {
+    if ($habilitation != null) {
+      $this->personnes_model->updateHabilitations();
+    }
+  }
+
   public function index($habilitations = null) {
     if ($habilitations != null) {
       if ($this->isAdmin()) {
-        $groupes = $this->personnes_model->getGroupes();
-        var_dump($groupes);
-        $this->loadTemplate('habilitations', array('personnes' => $this->personnes_model->getGroupesAutorises(), 'groupes' => $groupes));
+        $this->loadTemplate('habilitations', array('personnes' => $this->personnes_model->getGroupesAutorises(), 'groupes' => $this->personnes_model->getGroupes()));
       } else {
         $this->redirectHome();
       }

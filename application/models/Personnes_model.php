@@ -30,8 +30,8 @@
     public function getGroupesAutorises($idPersonne = null) {
       $query = $this->db->select('p.id, p.login, GROUP_CONCAT(g.id SEPARATOR \';\') as idGroupe, GROUP_CONCAT(g.libelleGroupe SEPARATOR \';\') as libelleGroupe')
                         ->from('TPersonne p')
-                        ->join('PersonneAppartientGroupe pg', 'pg.idPersonne = p.id')
-                        ->join('TGroupe g', 'g.id = pg.idGroupe')
+                        ->join('PersonneAppartientGroupe pg', 'pg.idPersonne = p.id', 'left')
+                        ->join('TGroupe g', 'g.id = pg.idGroupe', 'left')
                         ->group_by(array('p.id', 'p.login'));
       if ($idPersonne != null) {
         $query->where('p.id', $idPersonne);
@@ -43,12 +43,17 @@
       return $this->db->get('TGroupe')->result();
     }
 
-    /*
-select p.login, g.libelleGroupe, pa.url from tpersonne p
-join personneappartientgroupe pg on pg.idPersonne = p.id
-join tgroupe g on g.id = pg.idGroupe
-join GroupeAccedePage gp on gp.idGroupe = g.id
-join tpage pa on pa.id = gp.idPage
-    */
+    public function updateHabilitations() {      
+      $idPersonne = $this->input->post('idPersonne');
+      $hab = $this->input->post('inputHabilitation[]');
+
+      $data = array();
+
+      $this->db->delete('PersonneAppartientGroupe', array('idPersonne' => $idPersonne));
+      foreach($hab as $key => $val) {
+        $this->db->insert('PersonneAppartientGroupe', array('idPersonne' => $idPersonne, 'idGroupe' => $val));
+      }
+    }
+
   }
 ?>
