@@ -33,7 +33,7 @@ class Home extends UserConnected {
       $this->session->set_flashdata('enregistrementOk', true);
       redirect(site_url()."/home");
     } else {
-      redirect(site_url()."/home/inscription");
+      $this->loadPage('inscription');
     }
   }
 
@@ -116,8 +116,7 @@ class Home extends UserConnected {
   }
 
   public function verificationEmailUnique($email) {
-    //$this->utilisateur_model->verificationEmailUnique($email);
-    return true;
+    return $this->utilisateur_model->verificationEmailUnique($email);
   }
 }
 

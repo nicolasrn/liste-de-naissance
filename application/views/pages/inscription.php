@@ -9,7 +9,7 @@
     <div class="col-sm-8">
       <input type="text" name="login" class="form-control" id="login" placeholder="login" value="<?php echo set_value('login'); ?>">
       <span class="help-block"></span>
-    </div>
+    </div>  
   </div>
   <div class="form-group">
     <label for="email" class="col-sm-4 control-label">email</label>
