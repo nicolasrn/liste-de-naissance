@@ -8,6 +8,8 @@
       <th>id</th>
       <th>login</th>
       <th>password</th>
+      <th>email</th>
+      <th>réservation totale</th>
       <th>groupes</th>
     </tr>
   </thead>
@@ -17,6 +19,8 @@
           <td>{id}</td>
           <td>{login}</td>
           <td>{password}</td>
+          <td>{email}</td>
+          <td>{reservationTotale}</td>
           <td>{libelleGroupe}</td>
         </tr>
     {/personnes}

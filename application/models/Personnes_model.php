@@ -5,12 +5,13 @@
     }
 
     public function get() {
-      $query = $this->db->select('p.id, p.login, p.password, GROUP_CONCAT(g.libelleGroupe SEPARATOR \';\') as libelleGroupe')
+      $query = $this->db->select('p.id, p.login, p.password, p.email, sum(prc.quantiteReservee) as reservationTotale, GROUP_CONCAT(g.libelleGroupe SEPARATOR \';\') as libelleGroupe')
                         ->from('TPersonne p')
+                        ->join('PersonneReserveCadeau  prc', 'prc.idPersonne = p.id', 'left')
                         ->join('PersonneAppartientGroupe pg', 'pg.idPersonne = p.id', 'left')
                         ->join('TGroupe g', 'g.id = pg.idGroupe', 'left')
                         ->where('isAdmin', 0)
-                        ->group_by(array('p.id', 'p.login', 'p.password'));
+                        ->group_by(array('p.id', 'p.login', 'p.password', 'p.email'));
       return $query->get()->result();
     }
 
