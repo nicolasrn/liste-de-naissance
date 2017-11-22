@@ -11,6 +11,8 @@
 		<script src="/assets/js/plugin.js"></script>
 		<script src="/assets/js/handlebar-addon.js"></script>
 		<script src="/assets/js/handlebar-init.js"></script>
+		<script src="/assets/js/lds.js"></script>
+		<script src="/assets/js/lds.dataTable.js"></script>
 		<script src="/assets/js/app.js"></script>
   </body>
 </html>

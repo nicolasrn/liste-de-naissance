@@ -2,20 +2,36 @@
   <h1>Qui est inscrit ?</h1>
 </div>
 
+<div id="filtreHabilitationParChamp">
+  <fieldset>
+    <legend><h2>Filtre par champ</h2></legend>
+  </fieldset>
+</div>
+
 <div>
   <table class="table table-responsive table-striped table-hover" data-plugin="dataTable">
     <thead>
       <tr>
+        <th class='searchable'>id</th>
+        <th class='searchable'>login</th>
+        <th class='searchable'>groupes</th>
+        <th>modification des groupes</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
         <th>id</th>
         <th>login</th>
         <th>groupes</th>
+        <th>modification des groupes</th>
       </tr>
-    </thead>
+    </tfoot>
     <tbody>
       {personnes}
         <tr>
           <td>{id}</td>
           <td>{login}</td>
+          <td>{libelleGroupe}</td>
           <td class="csvToCheckbox">{idGroupe}</td>
         </tr>
       {/personnes}
@@ -30,7 +46,13 @@
   </form>
 </div>
 
-<script src="/assets/js/lds.js"></script>
 <script>
-lds.toCheckBox('#template', '.csvToCheckbox');
+  lds.config.datatable.searchOnColonne = true;
+  lds.config.datatable.defautFormLocation = '#filtreHabilitationParChamp fieldset';
+  lds.config.datatable.locationType = 'form';
+  lds.config.datatable.searchColonne = '.searchable';
+  lds.config.datatable.searching = false;
+  addEventListener('DOMContentLoaded', function(event) {
+    lds.toCheckBox('#template', '.csvToCheckbox');
+  }, false);
 </script>

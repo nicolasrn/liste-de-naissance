@@ -15,6 +15,7 @@
 		<link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css">
 		<link rel="stylesheet" href="/assets/datatables.net-bs/css/dataTables.bootstrap.css">
 		<link rel="stylesheet" href="/assets/css/app.css">
+		<script src="/assets/js/lds.config.js"></script>
   </head>
 
    <body>
