@@ -55,5 +55,20 @@
       }
     }
 
+    public function getReservations() {
+      return $this->db->select('p.login, p.email, a.libelle, a.type, a.aDestinationDe, prc.quantiteReservee')
+                  ->from('TPersonne p')
+                  ->join('PersonneReserveCadeau prc', 'prc.idPersonne = p.id')
+                  ->join('TArticle a', 'prc.idArticle = a.id')
+                  ->order_by('a.type', 'desc')
+                  ->order_by('p.login')
+                  ->order_by('prc.quantiteReservee')
+                  ->get()->result();
+    }
+
+    public function getAllUtilisateurs() {
+      return $this->db->select('id, login')->get("TPersonne")->result();
+    }
+
   }
 ?>

@@ -82,6 +82,10 @@ class Home extends UserConnected {
         'url' => site_url('/personnes/habilitations'),
         'label' => 'Habilitations'
       ));
+      array_push($liens, array(
+        'url' => site_url('/personnes/reservations'),
+        'label' => 'reservations'
+      ));
 
       $navbar .= '<ul class="nav navbar-nav">';
       $navbar .= '<li><a data-plugin="navigationHistorique" href="#back" class="glyphicon glyphicon-chevron-left"></a></li>';

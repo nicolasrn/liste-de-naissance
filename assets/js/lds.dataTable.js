@@ -36,6 +36,9 @@ lds = (function (l) {
 
   const searchOnColumn = function (selector, item) {
     let that = $(selector).DataTable().table().column(lds.config.datatable.searchColonne + ':contains(' + item.attr('placeholder') + ')');
+    if (that.length === 0) { //recherche sur tous les champs
+      that = $(selector).DataTable().table().columns();
+    }
     if (that.search() !== item.val()) {
       that.search(item.val()).draw();
     }
@@ -44,6 +47,7 @@ lds = (function (l) {
   const initSearchForm = function (selector) {
     let formLocation = $(lds.config.datatable.defautFormLocation);
     let form = $('<form class="form-horizontal" action="#"></form>');
+    let eltsform = $(formLocation).find('.elt-form');
     $(selector + ' ' + lds.config.datatable.searchColonne).each(function () {
       let columnLabel = $(this).text();
       let formGroup = $('<div class="form-group"></div>');
@@ -52,10 +56,11 @@ lds = (function (l) {
       formGroup.append(label);
       formGroup.append(input);
       form.append(formGroup);
-      formLocation.append(form);
     });
+    form.append(eltsform);
+    formLocation.append(form);
     let sel = selector;
-    $('input', lds.config.datatable.defautFormLocation).on('keyup change', function () {
+    $('input, select', lds.config.datatable.defautFormLocation).on('keyup change', function () {
       searchOnColumn(sel, $(this));
     });
   };
