@@ -1,5 +1,5 @@
 <div class="jumbotron">
-  <h1>Qui est inscrit ?</h1>
+  <h1>Habilitations</h1>
 </div>
 
 <div id="filtreHabilitationParChamp">

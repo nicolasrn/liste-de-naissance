@@ -12,10 +12,13 @@
     
     <title>Pour bébé Pingé Reitz</title>
 
-		<link rel="stylesheet" href="/assets/bootstrap/dist/css/bootstrap.min.css">
-		<link rel="stylesheet" href="/assets/datatables.net-bs/css/dataTables.bootstrap.css">
-		<link rel="stylesheet" href="/assets/css/app.css">
-		<script src="/assets/js/lds.config.js"></script>
+		<link rel="stylesheet" href="<?php echo base_url(); ?>/assets/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="<?php echo base_url(); ?>/assets/datatables.net-bs/css/dataTables.bootstrap.css">
+		<link rel="stylesheet" href="<?php echo base_url(); ?>/assets/css/app.css">
+		<script src="<?php echo base_url(); ?>/assets/js/lds.config.js"></script>
+		<script>
+			lds.config.site_url = "<?php echo site_url(); ?>";
+		</script>
   </head>
 
    <body>

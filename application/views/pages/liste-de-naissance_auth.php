@@ -41,7 +41,7 @@
               <div class="carousel-inner">
                 {{#each this.img}}
                 <div class="item {{#eq @index 0}}active{{/eq}}">
-                  <img src="{{this.src}}" class="img-responsive center-block">
+                  <img src="<?php echo base_url(); ?>{{this.src}}" class="img-responsive center-block">
                   <div class="carousel-caption">
                   </div>
                 </div>

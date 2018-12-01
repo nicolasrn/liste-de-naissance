@@ -5,7 +5,7 @@
   $('[data-connexion-rapide]').connexionRapide();
   $('[data-show-message]').showMessage();
   $('#menuAdmin').menu({
-    url: '/index.php/home/menu'
+    url: lds.config.site_url + '/home/menu'
   });
   $('#ajouterImage').addFileToForm();
   $('[data-plugin=messageParZone]').messageParZone();

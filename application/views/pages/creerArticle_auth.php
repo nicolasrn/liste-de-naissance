@@ -77,7 +77,7 @@ if (isset($menuAdministrationListeDeSouhaits)) {
         foreach($images as $ligneImage) {
           echo '<div class="row">';
           foreach($ligneImage as $img) {
-            echo '<div class="col-md-3" data-id="' . $img['id'] . '"><a href="#" class="thumbnail glyphicon glyphicon-remove">' . '<img src="' . $img['src'] . '">' . '</a></div>';
+            echo '<div class="col-md-3" data-id="' . $img['id'] . '"><a href="#" class="thumbnail glyphicon glyphicon-remove">' . '<img src="' . base_url() . '/' . $img['src'] . '">' . '</a></div>';
           }
           echo '</div>';
         }

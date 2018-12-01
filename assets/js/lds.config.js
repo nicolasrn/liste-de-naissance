@@ -7,7 +7,7 @@
         defautFormLocation: '#formFilterTable',
         searchColonne: '',
         searching: true
-      }
+      },
     }
   };
 

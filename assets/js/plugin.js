@@ -52,7 +52,7 @@
 	$.fn.compteur = function (options) {
 		function updateData(event, data) {
 			$.ajax({
-				url: "/index.php/compteur",
+				url: lds.config.site_url + "/compteur",
 				method: 'POST',
 				data: {
 					'idPersonne': data.idUser,
@@ -209,7 +209,5 @@
 				console.log(arguments);
 			});
 		});
-
-		return $(this);
 	}
 })(jQuery);
